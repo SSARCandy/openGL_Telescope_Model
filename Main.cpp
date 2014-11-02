@@ -158,20 +158,32 @@ void Display(void)
 	glRotated(90, 0, 1, 0);
 	glTranslated(0, -4.5, -3);
 
-	glTranslated(0, 0, 3);
-	glRotated(Dec, 0, 1, 0);
-	glTranslated(0, 0, -3);
+	glTranslated(0, 0, 3);   //調整選中心轉點
+	glRotated(Dec, 0, 1, 0); //根據赤緯做旋轉
+	glTranslated(0, 0, -3);  //調整選轉中心點
 
 	gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, 128, 128); // Telescope
 	gluDisk(gluNewQuadric(), 0, 2.2, 128, 128); // Telescope背面
 
+	glPushMatrix();
 	glTranslated(0, 0, -0.5);
 	gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.6f, 64, 64); // 目鏡座
 	gluDisk(gluNewQuadric(), 0, 1.0, 64, 64); // 目鏡座背面
 
 	glTranslated(0, 0, -1.0);
-	gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, 64, 64); // 目鏡座
-	gluDisk(gluNewQuadric(), 0, 0.5, 64, 64); // 目鏡座背面
+	gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, 64, 64); // 目鏡
+	gluDisk(gluNewQuadric(), 0, 0.5, 64, 64); // 目鏡背面
+	glPopMatrix();
+
+	glRotated(45, 0, 0, 1);
+	glTranslated(0,-3,0);
+	gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, 32, 32); // 尋星鏡
+	gluDisk(gluNewQuadric(), 0, 0.5, 32, 32); // 尋星鏡背面
+	glTranslated(0, 0, -0.5);
+	gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, 32, 32); // 目鏡
+	gluDisk(gluNewQuadric(), 0, 0.3, 32, 32); // 目鏡背面
+	glTranslated(0, 0.6, 1.5);
+	glutSolidCube(0.5);
 
 	glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 	/**------------------ Draw 主鏡 END------------------**/
