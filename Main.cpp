@@ -4,10 +4,8 @@
 // and a camera.
 // Program by Richard S. Wright Jr.
 
-#include "../../shared/gltools.h"	// OpenGL toolkit
-#include "../../shared/glframe.h"   // Frame Class
-#include <math.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

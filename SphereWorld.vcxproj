@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C1AD012B-690E-479C-A3E8-1154BA478B7E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>Telescope</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -62,9 +63,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)SphereWorld.exe</OutputFile>
+      <OutputFile>$(OutDir)Telescope.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)SphereWorld.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)Telescope.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
@@ -87,10 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\shared\GLee.c" />
-    <ClCompile Include="..\..\shared\gltools.cpp" />
-    <ClCompile Include="..\..\shared\math3d.cpp" />
-    <ClCompile Include="sphereworld.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
