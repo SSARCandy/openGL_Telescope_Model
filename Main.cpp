@@ -71,8 +71,8 @@ int main()
 
 void Display(void)
 {
-	glClearColor(1.0, 1.0, 1.0, 1.0);                            //用白色塗背景
-	glColor3ub(50, 50, 50);
+	glClearColor(0.7, 0.7, 0.7, 1.0);      //塗背景
+	glColor4ub(50, 50, 50, 1.0);
 
 	if (mykey[0]) Dec += moveSpeed;
 	if (mykey[1]) Dec -= moveSpeed;
@@ -95,6 +95,8 @@ void Display(void)
 
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
+	glColor4ub(30, 10, 10, 1.0);
+
 	glScaled(2.2, 4, 2.2);
 	glutSolidCube(1.0);
 	glPopMatrix();     // restore global matrix
@@ -108,10 +110,12 @@ void Display(void)
 	glTranslated(0, 0, -1);
 	gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.0f, 32, 32);
 
+	glColor4ub(0, 0, 128, 0.1);
 	glTranslated(0, 0, 3.0);
 	gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, 32, 32); // 極望蓋子
 	glTranslated(0, 0, 1.0);
 	gluDisk(gluNewQuadric(), 0, 0.6, 32, 32);               // 極望蓋子
+	glColor4ub(30, 10, 10, 1.0);
 
 	glPopMatrix();     // restore global matrix
 	/**------------------ Draw 赤道儀極軸(赤經軸) END------------------**/
@@ -121,9 +125,9 @@ void Display(void)
 	glRotated(180 - 23.5, 0, 0, 1);
 	glTranslated(3, -1, 0);
 
-	glTranslated(0, -1, 0);
-	glRotated(RA, 1, 0, 0);
-	glTranslated(0, 1, 0);
+	glTranslated(0, -1, 0); //調整旋轉中心點
+	glRotated(RA, 1, 0, 0); //根據赤經旋轉
+	glTranslated(0, 1, 0);  //調整旋轉中心點
 
 	glPushMatrix();    // save 赤道儀赤緯軸 matrix
 	glScaled(2.4, 5, 2.4);
@@ -133,10 +137,13 @@ void Display(void)
 
 	/**------------------ Draw 重錘杆&重錘 START----------------**/
 	glPushMatrix();    // save 赤道儀赤緯軸 matrix
+	glColor4ub(60, 60, 70, 1.0);
 
 	glTranslated(0, 8, 0);
 	glRotated(90, 1, 0, 0);
 	gluCylinder(gluNewQuadric(), 0.2f, 0.2f, 6.0f, 64, 64); // HammerStick
+
+	glColor4ub(70, 50, 50, 1.0);
 
 	glTranslated(0, 0, HammerR);//由重錘杆底步向上移
 	gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, 64, 64); // Hammer1
@@ -161,9 +168,19 @@ void Display(void)
 	glTranslated(0, 0, 3);   //調整選中心轉點
 	glRotated(Dec, 0, 1, 0); //根據赤緯做旋轉
 	glTranslated(0, 0, -3);  //調整選轉中心點
-
+	
+	glColor4ub(15, 15, 15, 1.0);
 	gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, 128, 128); // Telescope
 	gluDisk(gluNewQuadric(), 0, 2.2, 128, 128); // Telescope背面
+
+	glPushMatrix();
+	glTranslated(0, 0, 6);
+	gluDisk(gluNewQuadric(), 0, 2.2, 32, 32); // Telescope正面(卡賽格林式)
+	glTranslated(0, 0, 0.5);
+	gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.5f, 32, 32); // 前反射面
+	glTranslated(0, 0, 0.5);
+	gluDisk(gluNewQuadric(), 0, 1.0, 32, 32);
+	glPopMatrix();
 
 	glPushMatrix();
 	glTranslated(0, 0, -0.5);
@@ -185,6 +202,7 @@ void Display(void)
 	glTranslated(0, 0.6, 1.5);
 	glutSolidCube(0.5);
 
+	glColor4ub(50, 50, 50, 1.0);
 	glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 	/**------------------ Draw 主鏡 END------------------**/
 
@@ -192,8 +210,9 @@ void Display(void)
 	glPopMatrix();   // restore global matrix
 
 	glPushMatrix();  // save global matrix
+	glColor4ub(35, 35, 35, 1.0);
 
-	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.7);
+	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.8);
 	glRotated(35, 1, 0, 0);
 	glScaled(1, 12, 0.2);
 	glutSolidCube(1.0);// 腳架1
@@ -201,7 +220,7 @@ void Display(void)
 
 	glPushMatrix();  // save global matrix
 	glRotated(120, 0, 1, 0);
-	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.7);
+	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.8);
 	glRotated(35, 1, 0, 0);
 	glScaled(1, 12, 0.2);
 	glutSolidCube(1.0);// 腳架2
@@ -209,7 +228,7 @@ void Display(void)
 
 	glPushMatrix();  // save global matrix
 	glRotated(240, 0, 1, 0);
-	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.7);
+	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.8);
 	glRotated(35, 1, 0, 0);
 	glScaled(1, 12, 0.2);
 	glutSolidCube(1.0);// 腳架3
@@ -218,9 +237,9 @@ void Display(void)
 	glPushMatrix();  // save global matrix
 
 	glBegin(GL_TRIANGLES); // Draw 置物三腳盤
-	glVertex3f(0.0, -5.0, -2.7);
-	glVertex3f(-2.7*sin(120 * DEG2RAD), -5.0, -2.7*cos(120 * DEG2RAD));
-	glVertex3f(-2.7*sin(240 * DEG2RAD), -5.0, -2.7*cos(240 * DEG2RAD));
+	glVertex3f(0.0, -5.0, -2.8);
+	glVertex3f(-2.8*sin(120 * DEG2RAD), -5.0, -2.8*cos(120 * DEG2RAD));
+	glVertex3f(-2.8*sin(240 * DEG2RAD), -5.0, -2.8*cos(240 * DEG2RAD));
 	glEnd();
 
 
@@ -382,19 +401,14 @@ void SetMaterial()
 // context.
 void SetupRC()
 {
-	// Light values and coordinates
-	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
-	glFrontFace(GL_CCW);		// Counter clock-wise polygons face out
 
-	// Enable lighting
-	glEnable(GL_LIGHTING);
+	glEnable(GL_BLEND);
+
+
+
 
 	// Enable color tracking
 	glEnable(GL_COLOR_MATERIAL);
 
-	// Set Material properties to follow glColor values
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-	// Black blue background
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
