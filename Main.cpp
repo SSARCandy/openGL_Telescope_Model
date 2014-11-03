@@ -29,20 +29,21 @@ double		Dec					= 0.0;				  //赤緯
 double		moveSpeed			= 1.0;				  //馬達移動速度
 bool		mykey[6]			= { false };		  //記錄按鍵按下狀態
 
-const float HammerR				= 1.6;
-const float HammerThick			= 0.6;
+const float HammerR				= 1.8;
+const float HammerThick			= 0.7;
 
 
+void DrawGround(void);								  //畫地板格線
+void SetLightSource(void);							  //設定光源屬性
+void SetMaterial(void);								  //設定材質屬性
+void SetupRC();
 void WindowSize(int, int);							  //負責視窗及繪圖內容的比例
 void myKeys(unsigned char, int, int);				  //獲取鍵盤輸入
 void myKeysUp(unsigned char, int, int);				  //獲取鍵盤彈起
 void SpecialKeys(int key, int x, int y);			  //獲取特殊鍵輸入
 void Mouse(int, int, int, int);						  //獲取滑鼠按下和放開時的訊息
 void MotionMouse(int, int);							  //獲取滑鼠按下期間的訊息
-void Display(void);
-void SetLightSource(void);							  //設定光源屬性
-void SetMaterial(void);								  //設定材質屬性
-void SetupRC();
+void Display(void);									  //畫面刷新
 
 int main()
 {
@@ -69,15 +70,40 @@ int main()
 	return 0;
 }
 
+///////////////////////////////////////////////////////////
+// Draw a gridded ground
+void DrawGround(void)
+{
+	GLfloat fExtent = 200.0f;
+	GLfloat fStep = 2.5f;
+	GLfloat y = -10.0f;
+	GLint iLine;
+
+	glBegin(GL_LINES);
+	for (iLine = -fExtent; iLine <= fExtent; iLine += fStep)
+	{
+		glVertex3f(iLine, y, fExtent);    // Draw Z lines
+		glVertex3f(iLine, y, -fExtent);
+
+		glVertex3f(fExtent, y, iLine);
+		glVertex3f(-fExtent, y, iLine);
+	}
+
+	glEnd();
+}
+
+
 void Display(void)
 {
-	glClearColor(0.7, 0.7, 0.7, 1.0);      //塗背景
+	glClearColor(0.9, 0.9, 0.9, 1.0);      //塗背景
 	glColor4ub(50, 50, 50, 1.0);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 	if (mykey[0]) Dec += moveSpeed;
 	if (mykey[1]) Dec -= moveSpeed;
-	if (mykey[2]) RA -= moveSpeed;
-	if (mykey[3]) RA += moveSpeed;
+	if (mykey[2]) RA  -= moveSpeed;
+	if (mykey[3]) RA  += moveSpeed;
 	if (mykey[4] && moveSpeed < 10) moveSpeed++;
 	if (mykey[5] && moveSpeed > 0) moveSpeed--;
 
@@ -92,14 +118,16 @@ void Display(void)
 	glTranslatef(0, 0, distance);                               //沿著z軸平移
 	glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
 	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+	DrawGround();												//畫地板格線
 
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
 	glColor4ub(30, 10, 10, 1.0);
 
-	glScaled(2.2, 4, 2.2);
+	glScaled(2.3, 3.2, 2.0);
 	glutSolidCube(1.0);
 	glPopMatrix();     // restore global matrix
+
 	/**------------------ Draw 赤道儀基座 END------------------**/
 
 	/**------------------ Draw 赤道儀極軸(赤經軸) START----------------**/
@@ -145,7 +173,7 @@ void Display(void)
 
 	glColor4ub(70, 50, 50, 1.0);
 
-	glTranslated(0, 0, HammerR);//由重錘杆底步向上移
+	glTranslated(0, 0, 1);//由重錘杆底步向上移
 	gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, 64, 64); // Hammer1
 	gluDisk(gluNewQuadric(), 0, HammerR, 64, 64); // Hammer1底面
 	glTranslated(0, 0, HammerThick);
@@ -207,12 +235,13 @@ void Display(void)
 	/**------------------ Draw 主鏡 END------------------**/
 
 	/**------------------ Draw 腳架 START--------------------**/
+	double offset = -3.2;
 	glPopMatrix();   // restore global matrix
 
 	glPushMatrix();  // save global matrix
 	glColor4ub(35, 35, 35, 1.0);
 
-	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.8);
+	glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 	glRotated(35, 1, 0, 0);
 	glScaled(1, 12, 0.2);
 	glutSolidCube(1.0);// 腳架1
@@ -220,7 +249,7 @@ void Display(void)
 
 	glPushMatrix();  // save global matrix
 	glRotated(120, 0, 1, 0);
-	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.8);
+	glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 	glRotated(35, 1, 0, 0);
 	glScaled(1, 12, 0.2);
 	glutSolidCube(1.0);// 腳架2
@@ -228,7 +257,7 @@ void Display(void)
 
 	glPushMatrix();  // save global matrix
 	glRotated(240, 0, 1, 0);
-	glTranslated(0, -6 * cos(35.0*DEG2RAD), -2.8);
+	glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 	glRotated(35, 1, 0, 0);
 	glScaled(1, 12, 0.2);
 	glutSolidCube(1.0);// 腳架3
@@ -237,9 +266,9 @@ void Display(void)
 	glPushMatrix();  // save global matrix
 
 	glBegin(GL_TRIANGLES); // Draw 置物三腳盤
-	glVertex3f(0.0, -5.0, -2.8);
-	glVertex3f(-2.8*sin(120 * DEG2RAD), -5.0, -2.8*cos(120 * DEG2RAD));
-	glVertex3f(-2.8*sin(240 * DEG2RAD), -5.0, -2.8*cos(240 * DEG2RAD));
+	glVertex3f(0.0, -5.0, offset);
+	glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
+	glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
 	glEnd();
 
 
