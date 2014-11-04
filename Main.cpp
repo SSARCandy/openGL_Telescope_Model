@@ -24,7 +24,7 @@ int			record_x			= 0;                  //紀錄上一次旋轉的角度
 int			record_y			= 0;
 
 float		distance			= 0;                  //在平移矩陣(glTranslatef();)中使用
-float		light_position[]	= { -200, 200, -300 };//光源的位置
+float		light_position[]	= { 20, 20, 20 };//光源的位置
 
 double		RA					= 0.0;				  //赤經
 double		Dec					= 90.0;				  //赤緯
@@ -34,6 +34,7 @@ bool		mykey[6]			= { false };		  //記錄按鍵按下狀態
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
 const int   Slice				= 64;
+GLFrame     sun;
 
 
 void DrawGround(void);								  //畫地板格線
@@ -128,23 +129,52 @@ void Display(void)
 	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
 	DrawGround();												//畫地板格線
 
+
+	///////////////////
+	// 畫光源(太陽)
+	glPushMatrix();
+		sun.ApplyActorTransform();
+		glDisable(GL_LIGHTING);
+		glColor4ub(255, 64, 64, 1.0);
+		glutWireSphere(2.0, 16, 16);
+		glEnable(GL_LIGHTING);
+	glPopMatrix();
+
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
 		glColor4ub(82, 0, 0, 1.0);
 		glScaled(2.3, 3.2, 2.0);
 		glutSolidCube(1.0);
 	glPopMatrix();     // restore global matrix
+
+	glPushMatrix();    // save global matrix
+		glColor4ub(70, 70, 70, 1.0);
+		glTranslated(0, -1.6, 0);
+		glRotated(90, 1, 0, 0);
+		gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, Slice); /////////
+		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
+		glTranslated(0, 0, 0.5);									  //底座
+		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
+	glPopMatrix();     // restore global matrix
 	/**------------------ Draw 赤道儀基座 END------------------**/
 
 	/**------------------ Draw 赤道儀極軸(赤經軸) START----------------**/
 	glPushMatrix();    // save global matrix
+		glColor4ub(80, 0, 0, 1.0);
 		glTranslated(0, 2, 0);
 		glRotated(66.5, 0, 0, 1);
 		glRotated(90, 1, 0, 0);
-		glTranslated(0, 0, -1);
-		gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.0f, Slice, Slice);
+		glTranslated(0, 0, -1.5);
+		gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.5f, Slice, Slice); // 赤經軸
+
+		glPushMatrix();
+		//	glTranslated(0, 0, -2.5);
+			glColor4ub(0, 0, 0,0);
+			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, Slice); // 赤經軸
+		glPopMatrix();
+
 		glColor4ub(0, 0, 128, 0.1);
-		glTranslated(0, 0, 3.0);
+		glTranslated(0, 0, 3.5);
 		gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, Slice, Slice); // 極望蓋子
 		glTranslated(0, 0, 1.0);
 		gluDisk(gluNewQuadric(), 0, 0.6, Slice, Slice);               // 極望蓋子
@@ -155,11 +185,11 @@ void Display(void)
 	/**------------------ Draw 赤道儀赤緯軸 START----------------**/
 	glPushMatrix();    // save global matrix
 		glRotated(180 - 23.5, 0, 0, 1);
-		glTranslated(3, -1.2, 0);
+		glTranslated(3.5, -1.3, 0);
 
-		glTranslated(0, -1, 0); //調整旋轉中心點
+		glTranslated(0, -0.5, 0); //調整旋轉中心點
 		glRotated(RA, 1, 0, 0); //根據赤經旋轉
-		glTranslated(0, 1, 0);  //調整旋轉中心點
+		glTranslated(0, 0.5, 0);  //調整旋轉中心點
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
 			glScaled(2.4, 4, 2.4);
@@ -167,19 +197,20 @@ void Display(void)
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-		glTranslated(0, -1.9, 0);
-		glRotated(90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 1.65f, 1.65f, 0.5f, Slice, Slice); 
-		gluDisk(gluNewQuadric(), 0, 1.65f, Slice, Slice);               
-		glTranslated(0, 0, 0.5);
-		gluDisk(gluNewQuadric(), 0, 1.65f, Slice, Slice);               
+			glColor4ub(0, 0, 0, 0);
+			glTranslated(0, -1.9, 0);
+			glRotated(90, 1, 0, 0);
+			gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, Slice); /////////
+			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
+			glTranslated(0, 0, 0.5);									  //載物台
+			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 	/**------------------ Draw 赤道儀赤緯軸 END------------------**/
 
 	/**------------------ Draw 重錘杆&重錘 START----------------**/
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			glColor4ub(60, 60, 70, 1.0);
+			glColor4ub(70, 70, 70, 1.0);
 
 			glTranslated(0, 8, 0);
 			glRotated(90, 1, 0, 0);
@@ -266,7 +297,7 @@ void Display(void)
 		const double offset = -3.2;
 		glPopMatrix();   // restore global matrix
 			glPushMatrix();  // save global matrix
-				glColor4ub(85, 85, 85, 1.0);
+				glColor4ub(70, 70, 70, 1.0);
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
 				glScaled(1, 12, 0.2);
@@ -291,14 +322,14 @@ void Display(void)
 		glPushMatrix();  // save global matrix
 
 		glColor4ub(10.0, 10.0, 10.0, 1.0);
-		glDisable(GL_LIGHTING);
+		//glDisable(GL_LIGHTING);
 		glBegin(GL_TRIANGLES); // Draw 置物三腳盤
 		glVertex3f(0.0, -5.0, offset);
 		glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
 		glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
 		glEnd();
 		glColor4ub(40, 40, 40, 1.0);
-		glEnable(GL_LIGHTING);
+		//glEnable(GL_LIGHTING);
 
 	/**------------------ Draw 腳架 END  --------------------**/
 
@@ -456,4 +487,6 @@ void SetupRC()
 	glEnable(GL_BLEND);
 	// Enable color tracking
 	glEnable(GL_COLOR_MATERIAL);
+
+	sun.SetOrigin(light_position[0], light_position[1], light_position[2]);
 }
