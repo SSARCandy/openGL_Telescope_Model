@@ -15,6 +15,8 @@
 
 int			WinNumber			= NULL;               //用來放置視窗代碼
 const float DEG2RAD				= 3.14159 / 180.0;    //角度轉弧度
+const float windowWidth			= 800;				  //視窗預設寬度
+const float windowHeight		= 600;				  //視窗預設高度
 
 int			old_rot_x			= 0;                  //剛按下滑鼠時的視窗座標
 int			old_rot_y			= 0;
@@ -24,8 +26,9 @@ int			record_x			= 0;                  //紀錄上一次旋轉的角度
 int			record_y			= 0;
 
 float		distance			= 0;                  //在平移矩陣(glTranslatef();)中使用
-float		light_position[]	= { 20, 20, 20 };//光源的位置
+float		light_position[]	= { 20, 20, 20 };     //光源的位置
 
+char		mss[50];								  //放字串
 double		RA					= 0.0;				  //赤經
 double		Dec					= 90.0;				  //赤緯
 double		moveSpeed			= 0.5;				  //馬達移動速度
@@ -48,6 +51,8 @@ void SpecialKeys(int key, int x, int y);			  //獲取特殊鍵輸入
 void Mouse(int, int, int, int);						  //獲取滑鼠按下和放開時的訊息
 void MotionMouse(int, int);							  //獲取滑鼠按下期間的訊息
 void Display(void);									  //畫面刷新
+void printText(char*, float, float, float);
+void updateRA_Dec();
 
 int main()
 {
@@ -58,8 +63,8 @@ W, S調整赤緯\n\
 A, D調整赤經\n\n\
 Esc關閉程式\n");
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800, 600);                     //視窗長寬
-	glutInitWindowPosition(600, 80);                  //視窗左上角的位置
+	glutInitWindowSize(windowWidth, windowHeight);                     //視窗長寬
+	glutInitWindowPosition(300, 150);                  //視窗左上角的位置
 	WinNumber = glutCreateWindow("Telescope Model -- SSARCandy");   
 
 	glutReshapeFunc(WindowSize);
@@ -108,13 +113,7 @@ void Display(void)
 	glColor4ub(40, 40, 40, 1.0);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-	if (mykey[0]) Dec += moveSpeed;
-	if (mykey[1]) Dec -= moveSpeed;
-	if (mykey[2]) RA  -= moveSpeed;
-	if (mykey[3]) RA  += moveSpeed;
-	if (mykey[4] && moveSpeed < 10) moveSpeed += 0.5;
-	if (mykey[5] && moveSpeed > 0) moveSpeed -= 0.5;
+	updateRA_Dec();
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -335,8 +334,41 @@ void Display(void)
 
 	glPopMatrix();   // restore global matrix
 
+	glPushMatrix();///在螢幕上寫字
+		glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+		glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+		glTranslated(0, 0, -distance);
+
+	//	gltDrawUnitAxes();
+		glTranslated(-15.58, 10.9, 0);
+		sprintf(mss, "RA  : %3.1f", RA );
+		printText(mss, 0.0, 0.7, 0.0);
+
+		glTranslated(0.0, -1, 0);
+		sprintf(mss, "Dec: %3.1f", Dec);
+		printText(mss, 0.0, 0.7, 0.0);
+	glPopMatrix();   // restore global matrix
+
+
 	glutSwapBuffers();
 }
+
+void printText(char* str, float r, float g, float b){
+	glColor3f(r, g, b);  //set font color
+	glRasterPos2i(0, 0);    //set font start position
+	for (int i = 0; i<strlen(str); i++)		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+}
+
+void updateRA_Dec(){
+	if (mykey[0]) Dec += moveSpeed;
+	if (mykey[1]) Dec -= moveSpeed;
+	if (mykey[2]) RA -= moveSpeed;
+	if (mykey[3]) RA += moveSpeed;
+	if (mykey[4] && moveSpeed < 10) moveSpeed += 0.2;
+	if (mykey[5] && moveSpeed > 0) moveSpeed -= 0.2;
+
+}
+
 
 void myKeys(unsigned char key, int x, int y)
 {
