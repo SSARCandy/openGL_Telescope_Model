@@ -73,7 +73,8 @@ int main()
   P      | Park 歸位至初始位置\n\
   L      | Wire/Shading Mode (開關光源)\n\
   Esc    | 關閉程式\n\n\
-|---------------Control---------------|");
+|---------------Control---------------|\n\n\
+   政大天文社、政大資訊科學系 許書軒");
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(windowWidth, windowHeight);     //視窗長寬
@@ -126,13 +127,9 @@ void Display(void)
 	if (!noLightMode) glClearColor(0.8, 0.8, 0.8, 1.0);      //塗背景
 	else			  glClearColor(0.5, 0.5, 0.5, 1.0);
 
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	updateRA_Dec();
-
+	updateRA_Dec(); //控制 RA, Dec 的改變
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	if (!noLightMode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   // shading = true
 	else			  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   // shading = false
 
@@ -192,7 +189,6 @@ void Display(void)
 		gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);               //極軸望遠鏡背面
 		glTranslated(0, 0, -4.0);                                 ////////////////
 
-
 		glPushMatrix();
 			glColor4ub(0, 0, 0,255);
 			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, 8); // 赤經、赤緯軸交接處
@@ -229,19 +225,16 @@ void Display(void)
 			glTranslated(0, 0, 0.5);								   //載物台
 			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);              /////////
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
-
 	/**------------------ Draw 赤道儀赤緯軸 END------------------**/
 
 	/**------------------ Draw 重錘杆&重錘 START----------------**/
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
 			glColor4ub(70, 70, 70, 255);
-
 			glTranslated(0, 8, 0);
 			glRotated(90, 1, 0, 0);
 			gluCylinder(gluNewQuadric(), 0.2f, 0.2f, 6.0f, 8, 32); // HammerStick
 
 			glColor4ub(70, 50, 50, 255);
-
 			glTranslated(0, 0, 1);//由重錘杆底步向上移
 			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, 8); // Hammer1
 			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1底面
@@ -295,8 +288,8 @@ void Display(void)
 
 				glTranslated(0, 0, -1.0);
 				gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, Slice, 8); // 目鏡
-				glColor4ub(100, 100, 100, 150);              // Glass - Transparency
-				gluDisk(gluNewQuadric(), 0, 0.5, Slice, 8);  // 目鏡背面
+				glColor4ub(100, 100, 100, 150);						      // Glass - Transparency
+				gluDisk(gluNewQuadric(), 0, 0.5, Slice, 8);				  // 目鏡背面
 				glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
@@ -314,18 +307,15 @@ void Display(void)
 			drawCube(noLightMode, 1.0, 1, 1, 1, 10, 10, 10);
 
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
-
 	/**------------------ Draw 主鏡 END------------------**/
 
 	/**------------------ Draw 腳架 START--------------------**/
 		const double offset = -3.2;
 		glPopMatrix();   // restore global matrix
 			glPushMatrix();  // save global matrix
-			//	glColor4ub(70, 70, 70, 1.0);
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
 				glTranslated(0, -2, 0);
-				//glScaled(1, 11, 0.2);
 				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
 			glPopMatrix();   // restore global matrix
 
@@ -334,7 +324,6 @@ void Display(void)
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
 				glTranslated(0, -2, 0);
-				//glScaled(1, 11, 0.2);
 				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
 			glPopMatrix();   // restore global matrix
 
@@ -343,32 +332,26 @@ void Display(void)
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
 				glTranslated(0, -2, 0);
-				//glScaled(1, 11, 0.2);
 				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
-
 			glPopMatrix();   // restore global matrix
 		glPushMatrix();  // save global matrix
 
 		glColor4ub(10.0, 10.0, 10.0, 255);
-		//glDisable(GL_LIGHTING);
 		glBegin(GL_TRIANGLES); // Draw 置物三腳盤
 		glVertex3f(0.0, -5.0, offset);
 		glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
 		glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
 		glEnd();
 		glColor4ub(40, 40, 40, 255);
-		//glEnable(GL_LIGHTING);
-
 	/**------------------ Draw 腳架 END  --------------------**/
-
 	glPopMatrix();   // restore global matrix
 
+
 	glPushMatrix();///在螢幕上寫字
-		glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
-		glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+		glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸，改變座標系對應至畫面
+		glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸，改變座標系對應至畫面
 		glTranslated(0, 0, -distance);
 
-	//	gltDrawUnitAxes();
 		glTranslated(-15.58, 10.9, 0);
 		sprintf(mss, "Motor Speed: %2.1f", moveSpeed);
 		printText(mss, 0.0, 0.7, 0.0);
@@ -380,7 +363,6 @@ void Display(void)
 		glTranslated(0.0, -1, 0);
 		sprintf(mss, "Dec: %3.1f", Dec);
 		printText(mss, 0.0, 0.7, 0.0);
-	
 	glPopMatrix();   // restore global matrix
 
 
@@ -444,16 +426,16 @@ void GOTO(int i){
 	bool RA_Done = false;
 	bool Dec_Done = false;
 
-	if (abs(RA - target_RA) > moveSpeed) {
+	if (abs(RA - target_RA) >= moveSpeed) {
 		if (RA > target_RA) RA -= moveSpeed;
-		else            RA += moveSpeed;
+		else                RA += moveSpeed;
 	}
 	else
 		RA_Done = true;
 
-	if (abs(Dec - target_Dec) > moveSpeed){
+	if (abs(Dec - target_Dec) >= moveSpeed){
 		if (Dec > target_Dec) Dec -= moveSpeed;
-		else               Dec += moveSpeed;
+		else                  Dec += moveSpeed;
 	}
 	else
 		Dec_Done = true;
