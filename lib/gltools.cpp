@@ -183,7 +183,7 @@ void gltDrawUnitAxes(void)
 	
 	// Measurements
 	float fAxisRadius = 0.025f;
-	float fAxisHeight = 5.0f;
+	float fAxisHeight = 215.0f;
 	float fArrowRadius = 0.06f;
 	float fArrowHeight = 0.1f;
 	

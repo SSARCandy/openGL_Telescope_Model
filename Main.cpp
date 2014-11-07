@@ -30,14 +30,19 @@ float		light_position[]	= { 20, 20, 20 };     //光源的位置
 
 char		mss[50];								  //放字串
 double		RA					= 0.0;				  //赤經
-double		Dec					= 90.0;				  //赤緯
+double		Dec					= 0.0;				  //赤緯
 double		moveSpeed			= 0.5;				  //馬達移動速度
+float		target_RA			= 0.0;				  //GOTO-目的地RA
+float		target_Dec			= 0.0;				  //GOTO-目的地Dec
 bool		mykey[6]			= { false };		  //記錄按鍵按下狀態
+bool		noLightMode			= false;			  //Wire/Shading Mode
 
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
 const int   Slice				= 64;
 GLFrame     sun;
+const float sun_RA				= 42.7;
+const float sun_Dec				= 156.0;
 
 
 void DrawGround(void);								  //畫地板格線
@@ -53,17 +58,25 @@ void MotionMouse(int, int);							  //獲取滑鼠按下期間的訊息
 void Display(void);									  //畫面刷新
 void printText(char*, float, float, float);
 void updateRA_Dec();
+void drawCube(bool, float, float, float, float, float, float, float);
 
 int main()
 {
-	printf("上下鍵調整遠近\n\
-滑鼠調整視角\n\n\
-+, -調整馬達速度\n\
-W, S調整赤緯\n\
-A, D調整赤經\n\n\
-Esc關閉程式\n");
+	printf("\
+|---------------Control---------------|\n\n\
+  上下鍵 | 調整遠近\n\
+  滑鼠   | 拖拉調整視角\n\
+  A, D   | 調整赤經 (RA)\n\
+  W, S   | 調整赤緯 (Dec)\n\
+  +, -   | 調整馬達速度 (Motor Speed)\n\
+  G      | GoTo 自動追蹤太陽\n\
+  P      | Park 歸位至初始位置\n\
+  L      | Wire/Shading Mode (開關光源)\n\
+  Esc    | 關閉程式\n\n\
+|---------------Control---------------|");
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(windowWidth, windowHeight);                     //視窗長寬
+	glutInitWindowSize(windowWidth, windowHeight);     //視窗長寬
 	glutInitWindowPosition(300, 150);                  //視窗左上角的位置
 	WinNumber = glutCreateWindow("Telescope Model -- SSARCandy");   
 
@@ -90,8 +103,9 @@ void DrawGround(void)
 {
 	GLfloat fExtent = 200.0f;
 	GLfloat fStep = 5.0f;
-	GLfloat y = -10.0f;
+	GLfloat y = -11.0f;
 	GLint iLine;
+
 
 	glBegin(GL_LINES);
 	for (iLine = -fExtent; iLine <= fExtent; iLine += fStep)
@@ -109,15 +123,18 @@ void DrawGround(void)
 
 void Display(void)
 {
-	glClearColor(0.8, 0.8, 0.8, 1.0);      //塗背景
-	glColor4ub(40, 40, 40, 1.0);
+	if (!noLightMode) glClearColor(0.8, 0.8, 0.8, 1.0);      //塗背景
+	else			  glClearColor(0.5, 0.5, 0.5, 1.0);
+
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	updateRA_Dec();
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);                   //設定面的正、背面都填滿
+	
+	if (!noLightMode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   // shading = true
+	else			  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   // shading = false
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -126,6 +143,9 @@ void Display(void)
 	glTranslatef(0, 0, distance);                               //沿著z軸平移
 	glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
 	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+
+	if (!noLightMode) 	glColor4ub(40, 40, 40, 255);
+	else				glColor4ub(200, 200, 200, 255);
 	DrawGround();												//畫地板格線
 
 
@@ -134,50 +154,56 @@ void Display(void)
 	glPushMatrix();
 		sun.ApplyActorTransform();
 		glDisable(GL_LIGHTING);
-		glColor4ub(255, 64, 64, 1.0);
+		glColor4ub(255, 64, 64, 255);
 		glutWireSphere(2.0, 16, 16);
-		glEnable(GL_LIGHTING);
+		if(!noLightMode) glEnable(GL_LIGHTING);
 	glPopMatrix();
 
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
-		glColor4ub(82, 0, 0, 1.0);
-		glScaled(2.3, 3.2, 2.0);
-		glutSolidCube(1.0);
+		drawCube(noLightMode, 1.0, 2.3, 3.2, 2.0, 80, 0, 0);
 	glPopMatrix();     // restore global matrix
 
 	glPushMatrix();    // save global matrix
-		glColor4ub(70, 70, 70, 1.0);
+		glColor4ub(70, 70, 70, 255);
 		glTranslated(0, -1.6, 0);
 		glRotated(90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, Slice); /////////
-		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
-		glTranslated(0, 0, 0.5);									  //底座
-		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
+		gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, 6); /////////
+		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);             /////////
+		glTranslated(0, 0, 0.5);							      //底座
+		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);             /////////
 	glPopMatrix();     // restore global matrix
 	/**------------------ Draw 赤道儀基座 END------------------**/
 
 	/**------------------ Draw 赤道儀極軸(赤經軸) START----------------**/
 	glPushMatrix();    // save global matrix
-		glColor4ub(80, 0, 0, 1.0);
+		glColor4ub(90, 10, 10, 255);
 		glTranslated(0, 2, 0);
 		glRotated(66.5, 0, 0, 1);
 		glRotated(90, 1, 0, 0);
 		glTranslated(0, 0, -1.5);
-		gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.5f, Slice, Slice); // 赤經軸
+		gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.5f, Slice, 16); // 赤經軸
+		glTranslated(0, 0, 3.5);
+		gluDisk(gluNewQuadric(), 0, 1.2, Slice, 16);               // 蓋子
+
+		glColor4ub(0, 0, 0, 255);                                 ////////////////
+		gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 0.5f, Slice, 8); ////////////////
+		glTranslated(0, 0, 0.5);								  //極軸望遠鏡
+		gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);               //極軸望遠鏡背面
+		glTranslated(0, 0, -4.0);                                 ////////////////
+
 
 		glPushMatrix();
-		//	glTranslated(0, 0, -2.5);
-			glColor4ub(0, 0, 0,0);
-			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, Slice); // 赤經軸
+			glColor4ub(0, 0, 0,255);
+			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, 8); // 赤經、赤緯軸交接處
 		glPopMatrix();
 
-		glColor4ub(0, 0, 128, 0.1);
+		glColor4ub(0, 0, 255, 200);
 		glTranslated(0, 0, 3.5);
-		gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, Slice, Slice); // 極望蓋子
+		gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, Slice, 8); // 極望蓋子
 		glTranslated(0, 0, 1.0);
-		gluDisk(gluNewQuadric(), 0, 0.6, Slice, Slice);               // 極望蓋子
-		glColor4ub(82, 0, 0, 1.0);
+		gluDisk(gluNewQuadric(), 0, 0.6, Slice, 8);               // 極望蓋子
+		glColor4ub(82, 0, 0, 255);
 	glPopMatrix();     // restore global matrix
 	/**------------------ Draw 赤道儀極軸(赤經軸) END------------------**/
 
@@ -187,106 +213,105 @@ void Display(void)
 		glTranslated(3.5, -1.3, 0);
 
 		glTranslated(0, -0.5, 0); //調整旋轉中心點
-		glRotated(RA, 1, 0, 0); //根據赤經旋轉
+		glRotated(RA, 1, 0, 0);   //根據赤經旋轉
 		glTranslated(0, 0.5, 0);  //調整旋轉中心點
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			glScaled(2.4, 4, 2.4);
-			glutSolidCube(1.0);
+			drawCube(noLightMode,  1.0, 2.4, 4, 2.4,80, 0, 0);
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			glColor4ub(0, 0, 0, 0);
+			glColor4ub(0, 0, 0, 255);
 			glTranslated(0, -1.9, 0);
 			glRotated(90, 1, 0, 0);
-			gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, Slice); /////////
-			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
-			glTranslated(0, 0, 0.5);									  //載物台
-			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, Slice);              /////////
+			gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, 6);  /////////
+			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);              /////////
+			glTranslated(0, 0, 0.5);								   //載物台
+			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);              /////////
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 	/**------------------ Draw 赤道儀赤緯軸 END------------------**/
 
 	/**------------------ Draw 重錘杆&重錘 START----------------**/
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			glColor4ub(70, 70, 70, 1.0);
+			glColor4ub(70, 70, 70, 255);
 
 			glTranslated(0, 8, 0);
 			glRotated(90, 1, 0, 0);
-			gluCylinder(gluNewQuadric(), 0.2f, 0.2f, 6.0f, Slice, Slice); // HammerStick
+			gluCylinder(gluNewQuadric(), 0.2f, 0.2f, 6.0f, 8, 32); // HammerStick
 
-			glColor4ub(70, 50, 50, 1.0);
+			glColor4ub(70, 50, 50, 255);
 
 			glTranslated(0, 0, 1);//由重錘杆底步向上移
-			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, Slice); // Hammer1
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, Slice); // Hammer1底面
+			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, 8); // Hammer1
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1底面
 			glTranslated(0, 0, HammerThick);
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, Slice); // Hammer1頂面
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1頂面
 
 			glTranslated(0, 0, 0.5);
-			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, Slice); // Hammer2
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, Slice); // Hammer2底面
+			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, 8); // Hammer2
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer2底面
 			glTranslated(0, 0, HammerThick);
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, Slice); // Hammer2頂面
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer2頂面
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 	/**------------------ Draw 重錘杆&重錘 END------------------**/
 
 	/**------------------ Draw 主鏡 START----------------**/
-		glPushMatrix();    // save 赤道儀赤緯軸 matrix
+		glPushMatrix(); // save 赤道儀赤緯軸 matrix
 			glRotated(90, 0, 1, 0);
 			glTranslated(0, -4.7, -3);
-			glTranslated(0, 0, 3);   //調整選中心轉點
-			glRotated(Dec, 0, 1, 0); //根據赤緯做旋轉
-			glTranslated(0, 0, -3);  //調整選轉中心點
+			glTranslated(0, 0, 3);      //調整選中心轉點
+			glRotated(90+Dec, 0, 1, 0); //根據赤緯做旋轉
+			glTranslated(0, 0, -3);     //調整選轉中心點
 	
-			glColor4ub(20, 20, 20, 1.0);
-			gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, Slice, Slice); // Telescope
-//			gltDrawUnitAxes();
-			gluDisk(gluNewQuadric(), 0, 2.2, Slice, Slice); // Telescope背面
+			glColor4ub(20, 20, 20, 255);
+			//gltDrawUnitAxes();
+			gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, Slice, 24); // Telescope
+			gluDisk(gluNewQuadric(), 0.3, 2.2, Slice, 24);             // Telescope背面
 			
 			glPushMatrix();
-				glColor4ub(80, 60, 60, 1.0);
 				glTranslated(0, 2.3, 3.3);
-				glScaled(1, 0.7, 5);
-				glutSolidCube(1.0);
-				glColor4ub(20, 20, 20, 1.0);
+				drawCube(noLightMode, 1.0, 1, 0.7, 5, 80, 60, 60);
+				glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
 			glPushMatrix();
 				glTranslated(0, 0, 6);
-				gluDisk(gluNewQuadric(), 0, 2.2, Slice, Slice); // Telescope正面(卡賽格林式)
+
+				glColor4ub(100, 100, 100, 100);               // Glass - Transparency
+				gluDisk(gluNewQuadric(), 0, 2.2, Slice, 24);  // Telescope正面(卡賽格林式)
+				glColor4ub(20, 20, 20, 255);
+
 				glTranslated(0, 0, 0.5);
-				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.5f, Slice, Slice); // 前反射面
+				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.5f, Slice, 16); // 前反射面
 				glTranslated(0, 0, 0.5);
-				gluDisk(gluNewQuadric(), 0, 1.0, Slice, Slice);
+				gluDisk(gluNewQuadric(), 0, 1.0, Slice, 16);
 			glPopMatrix();
 
 			glPushMatrix();
 				glTranslated(0, 0, -0.5);
-				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.6f, Slice, Slice); // 目鏡座
-				gluDisk(gluNewQuadric(), 0, 1.0, Slice, Slice); // 目鏡座背面
+				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.6f, Slice, 8); // 目鏡座
+				gluDisk(gluNewQuadric(), 0.5, 1.0, Slice, 8);             // 目鏡座背面
 
 				glTranslated(0, 0, -1.0);
-				gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, Slice, Slice); // 目鏡
-				gluDisk(gluNewQuadric(), 0, 0.5, Slice, Slice); // 目鏡背面
+				gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, Slice, 8); // 目鏡
+				glColor4ub(100, 100, 100, 150);              // Glass - Transparency
+				gluDisk(gluNewQuadric(), 0, 0.5, Slice, 8);  // 目鏡背面
+				glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
 			glRotated(45, 0, 0, 1);
 			glTranslated(0,-3,0);
-			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, Slice); // 尋星鏡
-			gluDisk(gluNewQuadric(), 0, 0.5, Slice, Slice); // 尋星鏡背面
-			glTranslated(0, 0, -0.5);
-			gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, Slice, Slice); // 目鏡
-			gluDisk(gluNewQuadric(), 0, 0.3, Slice, Slice); // 目鏡背面
-	
-			//glPopMatrix();
-			//glPushMatrix();
-			//glTranslated(0, 0, -2);
-			//glScaled(2.4, 1, 2.4);
-			//glutSolidCube(1.0);
-			//glPopMatrix();
+			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, 16); // 尋星鏡
+			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // 尋星鏡背面
+			glTranslated(0, 0, 3.0);
+			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // 尋星鏡正面
+			glTranslated(0, 0, -3.5);
+			gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, Slice, 8);  // 目鏡
+			gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);                // 目鏡背面
+
 			glTranslated(0, 0.6, 1.5);
-			glutSolidCube(0.5);
+			drawCube(noLightMode, 1.0, 1, 1, 1, 10, 10, 10);
 
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
@@ -296,38 +321,42 @@ void Display(void)
 		const double offset = -3.2;
 		glPopMatrix();   // restore global matrix
 			glPushMatrix();  // save global matrix
-				glColor4ub(70, 70, 70, 1.0);
+			//	glColor4ub(70, 70, 70, 1.0);
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
-				glScaled(1, 12, 0.2);
-				glutSolidCube(1.0);// 腳架1
+				glTranslated(0, -2, 0);
+				//glScaled(1, 11, 0.2);
+				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
 			glPopMatrix();   // restore global matrix
 
 			glPushMatrix();  // save global matrix
 				glRotated(120, 0, 1, 0);
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
-				glScaled(1, 12, 0.2);
-				glutSolidCube(1.0);// 腳架2
+				glTranslated(0, -2, 0);
+				//glScaled(1, 11, 0.2);
+				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
 			glPopMatrix();   // restore global matrix
 
 			glPushMatrix();  // save global matrix
 				glRotated(240, 0, 1, 0);
 				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
 				glRotated(35, 1, 0, 0);
-				glScaled(1, 12, 0.2);
-				glutSolidCube(1.0);// 腳架3
+				glTranslated(0, -2, 0);
+				//glScaled(1, 11, 0.2);
+				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+
 			glPopMatrix();   // restore global matrix
 		glPushMatrix();  // save global matrix
 
-		glColor4ub(10.0, 10.0, 10.0, 1.0);
+		glColor4ub(10.0, 10.0, 10.0, 255);
 		//glDisable(GL_LIGHTING);
 		glBegin(GL_TRIANGLES); // Draw 置物三腳盤
 		glVertex3f(0.0, -5.0, offset);
 		glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
 		glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
 		glEnd();
-		glColor4ub(40, 40, 40, 1.0);
+		glColor4ub(40, 40, 40, 255);
 		//glEnable(GL_LIGHTING);
 
 	/**------------------ Draw 腳架 END  --------------------**/
@@ -341,12 +370,17 @@ void Display(void)
 
 	//	gltDrawUnitAxes();
 		glTranslated(-15.58, 10.9, 0);
+		sprintf(mss, "Motor Speed: %2.1f", moveSpeed);
+		printText(mss, 0.0, 0.7, 0.0);
+
+		glTranslated(0.0, -1, 0);
 		sprintf(mss, "RA  : %3.1f", RA );
 		printText(mss, 0.0, 0.7, 0.0);
 
 		glTranslated(0.0, -1, 0);
 		sprintf(mss, "Dec: %3.1f", Dec);
 		printText(mss, 0.0, 0.7, 0.0);
+	
 	glPopMatrix();   // restore global matrix
 
 
@@ -354,7 +388,7 @@ void Display(void)
 }
 
 void printText(char* str, float r, float g, float b){
-	glColor3f(r, g, b);  //set font color
+	glColor3f(r, g, b);     //set font color
 	glRasterPos2i(0, 0);    //set font start position
 	for (int i = 0; i<strlen(str); i++)		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
 }
@@ -364,26 +398,90 @@ void updateRA_Dec(){
 	if (mykey[1]) Dec -= moveSpeed;
 	if (mykey[2]) RA -= moveSpeed;
 	if (mykey[3]) RA += moveSpeed;
-	if (mykey[4] && moveSpeed < 10) moveSpeed += 0.2;
-	if (mykey[5] && moveSpeed > 0) moveSpeed -= 0.2;
+	if (mykey[4] && moveSpeed < 9.9) moveSpeed += 0.2;
+	if (mykey[5] && moveSpeed > 0.2) moveSpeed -= 0.2;
 
 }
 
+void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float r, float g, float b){
+	glColor4ub(r+10, g+10, b+10, 255);
+	if (!noLightMode) {
+		glScaled(sX, sY, sZ);
+		glutSolidCube(1.0);
+		glColor4ub(r, g, b, 255);
+		glutWireCube(1.0);
+	}
+	else
+	{
+		glPushMatrix();
+			glScaled(sX, sY, sZ);
+			glutWireCube(1.0);
+		glPopMatrix();
+
+		// 畫網格
+		for (GLfloat i = 0; i < sX; i += 0.5){
+			glPushMatrix();
+			glScaled(i, sY, sZ);
+			glutWireCube(1.0);
+			glPopMatrix();
+		}
+		for (GLfloat i = 0; i < sY; i += 0.5){
+			glPushMatrix();
+			glScaled(sX, i, sZ);
+			glutWireCube(1.0);
+			glPopMatrix();
+		}
+		for (GLfloat i = 0; i < sZ; i += 0.5){
+			glPushMatrix();
+			glScaled(sX, sY, i);
+			glutWireCube(1.0);
+			glPopMatrix();
+		}
+	}
+}
+
+void GOTO(int i){
+	bool RA_Done = false;
+	bool Dec_Done = false;
+
+	if (abs(RA - target_RA) > moveSpeed) {
+		if (RA > target_RA) RA -= moveSpeed;
+		else            RA += moveSpeed;
+	}
+	else
+		RA_Done = true;
+
+	if (abs(Dec - target_Dec) > moveSpeed){
+		if (Dec > target_Dec) Dec -= moveSpeed;
+		else               Dec += moveSpeed;
+	}
+	else
+		Dec_Done = true;
+
+	if (!RA_Done || !Dec_Done){
+		glutTimerFunc(33, GOTO, 0);
+		glutPostRedisplay();
+	}
+}
 
 void myKeys(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
 	case 'w':
+	case 'W':
 		mykey[0] = true;
 		break;
 	case 's':
+	case 'S':
 		mykey[1] = true;
 		break;
 	case 'a':
+	case 'A':
 		mykey[2] = true;
 		break;
 	case 'd':
+	case 'D':
 		mykey[3] = true;
 		break;
 	case '+':
@@ -392,8 +490,24 @@ void myKeys(unsigned char key, int x, int y)
 	case '-':
 		mykey[5] = true;
 		break;
-
-	case 27:
+	case 'l':
+	case 'L':
+		if (!noLightMode) noLightMode = true;
+		else noLightMode = false;
+		break;
+	case 'g':
+	case 'G':
+		target_Dec = sun_Dec;
+		target_RA = sun_RA;
+		GOTO(0);
+		break;
+	case 'p':
+	case 'P':
+		target_Dec = 0.0;
+		target_RA = 0.0;
+		GOTO(0);
+		break;
+	case 27: // Esc
 		glDisable(GL_LIGHT1);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
@@ -403,19 +517,24 @@ void myKeys(unsigned char key, int x, int y)
 	}
 	glutPostRedisplay();
 }
+
 void myKeysUp(unsigned char key, int x, int y){
 	switch (key)
 	{
 	case 'w':
+	case 'W':
 		mykey[0] = false;
 		break;
 	case 's':
+	case 'S':
 		mykey[1] = false;
 		break;
 	case 'a':
+	case 'A':
 		mykey[2] = false;
 		break;
 	case 'd':
+	case 'D':
 		mykey[3] = false;
 		break;
 	case '+':
@@ -437,18 +556,16 @@ void SpecialKeys(int key, int x, int y)
 	if (key == GLUT_KEY_DOWN)
 		distance -= 1;
 
-
 	// Refresh the Window
 	glutPostRedisplay();
 }
 
-
 void WindowSize(int w, int h)
 {
 	float rate;
-	if (h == 0) h = 1;                        //阻止h為零，分母可不能為零啊
+	if (h == 0) h = 1;                      //阻止h為零，分母可不能為零啊
 	glViewport(0, 0, w, h);                 //當視窗長寬改變時，畫面也跟著變
-	rate = (float)w / (float)h;                //畫面視野變了，但內容不變形
+	rate = (float)w / (float)h;             //畫面視野變了，但內容不變形
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -491,8 +608,8 @@ void SetLightSource()
 	glEnable(GL_LIGHTING);                                 //開燈
 
 	// 設定發光體的光源的特性
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);      //環境光(Ambient Light)
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);      //散射光(Diffuse Light)
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);       //環境光(Ambient Light)
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);       //散射光(Diffuse Light)
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);     //反射光(Specular Light)
 
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position);     //光的座標
@@ -512,11 +629,12 @@ void SetMaterial()
 	glMaterialfv(GL_FRONT, GL_SPECULAR, material_specular);
 }
 
-// This function does any needed initialization on the rendering
-// context.
+// This function does any needed initialization on the rendering context.
 void SetupRC()
 {
 	glEnable(GL_BLEND);
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Enable color tracking
 	glEnable(GL_COLOR_MATERIAL);
 
