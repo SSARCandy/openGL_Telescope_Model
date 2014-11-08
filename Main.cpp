@@ -355,11 +355,25 @@ void Display(void)
 		printText(mss, 0.0, 0.7, 0.0);
 
 		glTranslated(0.0, -1, 0);
-		sprintf(mss, "RA  : %3.1f", RA );
+		// 修正顯示的赤經成實際的赤經格式
+		float rRA;
+		int RA_h, RA_m, RA_s;
+		RA > 0 ? rRA = RA : rRA = 360 - RA;
+		RA_h = rRA / 15.0;
+		RA_m = (rRA - RA_h * 15) * 4.0;
+		RA_s = (rRA - RA_h * 15 - RA_m / 4) * 15;
+
+		sprintf(mss, "RA  : %.2dh %.2dm %.2ds", RA_h, RA_m, RA_s );
 		printText(mss, 0.0, 0.7, 0.0);
 
 		glTranslated(0.0, -1, 0);
-		sprintf(mss, "Dec: %3.1f", Dec);
+		// 修正顯示的赤緯成實際的赤緯
+		float realDec = Dec;
+		realDec > 0 ? realDec = 360-realDec : realDec = -realDec;
+		if (realDec > 90  && realDec <= 270) realDec = 180 - realDec;
+		if (realDec > 270 && realDec <= 360) realDec = realDec - 360;
+
+		sprintf(mss, "Dec: %3.1f", realDec);
 		printText(mss, 0.0, 0.7, 0.0);
 	glPopMatrix();   // restore global matrix
 
@@ -381,6 +395,11 @@ void updateRA_Dec(){
 	if (mykey[4] && moveSpeed < 9.9) moveSpeed += 0.2;
 	if (mykey[5] && moveSpeed > 0.2) moveSpeed -= 0.2;
 
+	if (RA < -360) RA += 360;
+	if (RA > 360) RA -= 360;
+
+	if (Dec < -360) Dec += 360;
+	if (Dec > 360) Dec -= 360;
 }
 
 // Draw customized Wire/Solid Cubes
@@ -439,6 +458,8 @@ void GOTO(int i){
 	}
 	else
 		Dec_Done = true;
+
+	updateRA_Dec();
 
 	if (!RA_Done || !Dec_Done){
 		glutTimerFunc(33, GOTO, 0);
