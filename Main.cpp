@@ -13,6 +13,7 @@
 #include "lib\gltools.h"
 #include "lib\glFrame.h"
 
+
 int			WinNumber			= NULL;               //用來放置視窗代碼
 const float DEG2RAD				= 3.14159 / 180.0;    //角度轉弧度
 const float windowWidth			= 800;				  //視窗預設寬度
@@ -28,6 +29,7 @@ int			record_y			= 0;
 float		distance			= 0;                  //在平移矩陣(glTranslatef();)中使用
 float		light_position[]	= { 20, 20, 20 };     //光源的位置
 
+GLFrame     sun;									  
 char		mss[50];								  //放字串
 double		RA					= 0.0;				  //赤經
 double		Dec					= 0.0;				  //赤緯
@@ -40,7 +42,6 @@ bool		noLightMode			= false;			  //Wire/Shading Mode
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
 const int   Slice				= 64;
-GLFrame     sun;
 const float sun_RA				= 42.7;
 const float sun_Dec				= 156.0;
 
@@ -124,14 +125,12 @@ void DrawGround(void)
 
 void Display(void)
 {
-	if (!noLightMode) glClearColor(0.8, 0.8, 0.8, 1.0);      //塗背景
-	else			  glClearColor(0.5, 0.5, 0.5, 1.0);
+	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//根據是否開光影來塗背景顏色
 
 	updateRA_Dec(); //控制 RA, Dec 的改變
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (!noLightMode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   // shading = true
-	else			  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   // shading = false
+	noLightMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Shading = true/false
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -141,8 +140,7 @@ void Display(void)
 	glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
 	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
 
-	if (!noLightMode) 	glColor4ub(40, 40, 40, 255);
-	else				glColor4ub(200, 200, 200, 255);
+	noLightMode ? glColor4ub(200, 200, 200, 255) : glColor4ub(40, 40, 40, 255);
 	DrawGround();												//畫地板格線
 
 
@@ -385,6 +383,7 @@ void updateRA_Dec(){
 
 }
 
+// Draw customized Wire/Solid Cubes
 void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float r, float g, float b){
 	glColor4ub(r+10, g+10, b+10, 255);
 	if (!noLightMode) {
@@ -403,25 +402,26 @@ void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float 
 		// 畫網格
 		for (GLfloat i = 0; i < sX; i += 0.5){
 			glPushMatrix();
-			glScaled(i, sY, sZ);
-			glutWireCube(1.0);
+				glScaled(i, sY, sZ);
+				glutWireCube(1.0);
 			glPopMatrix();
 		}
 		for (GLfloat i = 0; i < sY; i += 0.5){
 			glPushMatrix();
-			glScaled(sX, i, sZ);
-			glutWireCube(1.0);
+				glScaled(sX, i, sZ);
+				glutWireCube(1.0);
 			glPopMatrix();
 		}
 		for (GLfloat i = 0; i < sZ; i += 0.5){
 			glPushMatrix();
-			glScaled(sX, sY, i);
-			glutWireCube(1.0);
+				glScaled(sX, sY, i);
+				glutWireCube(1.0);
 			glPopMatrix();
 		}
 	}
 }
 
+// GOTO specify target
 void GOTO(int i){
 	bool RA_Done = false;
 	bool Dec_Done = false;
@@ -474,8 +474,7 @@ void myKeys(unsigned char key, int x, int y)
 		break;
 	case 'l':
 	case 'L':
-		if (!noLightMode) noLightMode = true;
-		else noLightMode = false;
+		noLightMode = !noLightMode;
 		break;
 	case 'g':
 	case 'G':
