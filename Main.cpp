@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+//#include <string>
 //#include <GL\glut.h>
 #include "lib\gltools.h"
 #include "lib\glFrame.h"
@@ -19,12 +20,12 @@ const float DEG2RAD				= 3.14159 / 180.0;    //角度轉弧度
 const float windowWidth			= 800;				  //視窗預設寬度
 const float windowHeight		= 600;				  //視窗預設高度
 
-int			old_rot_x			= 0;                  //剛按下滑鼠時的視窗座標
-int			old_rot_y			= 0;
+int			old_rot_x			= 0;                  //剛按下滑鼠時的視窗座標x
+int			old_rot_y			= 0;				  //剛按下滑鼠時的視窗座標y
 int			rot_x				= 0;                  //拖曳後的相對座標，用這決定要旋轉幾度
 int			rot_y				= 0;
-int			record_x			= 0;                  //紀錄上一次旋轉的角度
-int			record_y			= 0;
+int			record_x			= 0;                  //紀錄上一次旋轉的角度x
+int			record_y			= 0;                  //紀錄上一次旋轉的角度y
 
 float		distance			= 0;                  //在平移矩陣(glTranslatef();)中使用
 float		light_position[]	= { 20, 20, 20 };     //光源的位置
@@ -33,7 +34,7 @@ GLFrame     sun;
 char		mss[50];								  //放字串
 double		RA					= 0.0;				  //赤經
 double		Dec					= 0.0;				  //赤緯
-double		moveSpeed			= 0.5;				  //馬達移動速度
+double		moveSpeed			= 0.2;				  //馬達移動速度
 float		target_RA			= 0.0;				  //GOTO-目的地RA
 float		target_Dec			= 0.0;				  //GOTO-目的地Dec
 bool		mykey[6]			= { false };		  //記錄按鍵按下狀態
@@ -57,9 +58,10 @@ void SpecialKeys(int key, int x, int y);			  //獲取特殊鍵輸入
 void Mouse(int, int, int, int);						  //獲取滑鼠按下和放開時的訊息
 void MotionMouse(int, int);							  //獲取滑鼠按下期間的訊息
 void Display(void);									  //畫面刷新
-void printText(char*, float, float, float);
-void updateRA_Dec();
-void drawCube(bool, float, float, float, float, float, float, float);
+void showInfo();									  //顯示訊息於螢幕上(赤經、赤緯等)
+void printText(char*, float, float, float);           //印字
+void updateRA_Dec();								  //更新赤經赤緯
+void drawCube(bool, float, float, float, float, float, float, float);//客製化 Wire/Solid Cubes
 
 int main()
 {
@@ -121,7 +123,6 @@ void DrawGround(void)
 
 	glEnd();
 }
-
 
 void Display(void)
 {
@@ -303,7 +304,6 @@ void Display(void)
 
 			glTranslated(0, 0.6, 1.5);
 			drawCube(noLightMode, 1.0, 1, 1, 1, 10, 10, 10);
-
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 	/**------------------ Draw 主鏡 END------------------**/
 
@@ -342,43 +342,49 @@ void Display(void)
 		glEnd();
 		glColor4ub(40, 40, 40, 255);
 	/**------------------ Draw 腳架 END  --------------------**/
-	glPopMatrix();   // restore global matrix
+	glPopMatrix(); // restore global matrix
 
-
-	glPushMatrix();///在螢幕上寫字
-		glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸，改變座標系對應至畫面
-		glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸，改變座標系對應至畫面
-		glTranslated(0, 0, -distance);
-
-		glTranslated(-15.58, 10.9, 0);
-		sprintf(mss, "Motor Speed: %2.1f", moveSpeed);
-		printText(mss, 0.0, 0.7, 0.0);
-
-		glTranslated(0.0, -1, 0);
-		// 修正顯示的赤經成實際的赤經格式
-		float rRA;
-		int RA_h, RA_m, RA_s;
-		RA > 0 ? rRA = RA : rRA = 360 - RA;
-		RA_h = rRA / 15.0;
-		RA_m = (rRA - RA_h * 15) * 4.0;
-		RA_s = (rRA - RA_h * 15 - RA_m / 4) * 15;
-
-		sprintf(mss, "RA  : %.2dh %.2dm %.2ds", RA_h, RA_m, RA_s );
-		printText(mss, 0.0, 0.7, 0.0);
-
-		glTranslated(0.0, -1, 0);
-		// 修正顯示的赤緯成實際的赤緯
-		float realDec = Dec;
-		realDec > 0 ? realDec = 360-realDec : realDec = -realDec;
-		if (realDec > 90  && realDec <= 270) realDec = 180 - realDec;
-		if (realDec > 270 && realDec <= 360) realDec = realDec - 360;
-
-		sprintf(mss, "Dec: %3.1f", realDec);
-		printText(mss, 0.0, 0.7, 0.0);
-	glPopMatrix();   // restore global matrix
-
+	glPushMatrix();// save global matrix
+		showInfo();// 在螢幕上寫字
+	glPopMatrix(); // restore global matrix
 
 	glutSwapBuffers();
+}
+
+void showInfo(){
+	glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸，改變座標系對應至畫面
+	glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸，改變座標系對應至畫面
+	glTranslated(0, 0, -distance);
+
+	glTranslated(-15.58, 10.9, 0);
+	sprintf(mss, "Motor Speed: %2.2f", moveSpeed);
+	printText(mss, 0.0, 0.7, 0.0);
+
+	glTranslated(0.0, -1, 0);
+	// 修正顯示的赤經成實際的赤經格式
+	float rRA;
+	int RA_h, RA_m, RA_s;
+	RA > 0 ? rRA = RA : rRA = 360 - RA;
+	RA_h = rRA / 15.0;
+	RA_m = (rRA - RA_h * 15) * 4.0;
+	RA_s = (rRA - RA_h * 15 - RA_m / 4) * 15;
+
+	sprintf(mss, "RA  : %.2dh %.2dm %.2ds", RA_h, RA_m, RA_s);
+	printText(mss, 0.0, 0.7, 0.0);
+
+	glTranslated(0.0, -1, 0);
+	// 修正顯示的赤緯成實際的赤緯
+	float realDec = Dec;
+	realDec > 0 ? realDec = 360 - realDec : realDec = -realDec;
+	if (realDec > 90 && realDec <= 270) realDec = 180 - realDec;
+	if (realDec > 270 && realDec <= 360) realDec = realDec - 360;
+	int Dec_d, Dec_m, Dec_s;
+	Dec_d = (int)(realDec);
+	Dec_m = (int)((realDec - Dec_d) * 60);
+	Dec_s = (int)((realDec - Dec_d) * 3600) - Dec_m * 60;
+
+	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
+	printText(mss, 0.0, 0.7, 0.0);
 }
 
 void printText(char* str, float r, float g, float b){
@@ -392,8 +398,8 @@ void updateRA_Dec(){
 	if (mykey[1]) Dec -= moveSpeed;
 	if (mykey[2]) RA -= moveSpeed;
 	if (mykey[3]) RA += moveSpeed;
-	if (mykey[4] && moveSpeed < 9.9) moveSpeed += 0.2;
-	if (mykey[5] && moveSpeed > 0.2) moveSpeed -= 0.2;
+	if (mykey[4] && moveSpeed < 9.95) moveSpeed += 0.05;
+	if (mykey[5] && moveSpeed > 0.06) moveSpeed -= 0.05;
 
 	if (RA < -360) RA += 360;
 	if (RA > 360) RA -= 360;
@@ -546,7 +552,6 @@ void myKeysUp(unsigned char key, int x, int y){
 		mykey[5] = false;
 		break;
 	}
-
 }
 
 // Respond to arrow keys by moving the camera frame of reference
