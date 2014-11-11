@@ -20,6 +20,7 @@ const float DEG2RAD				= 3.14159 / 180.0;         //角度轉弧度
 const float windowWidth			= 800;				       //視窗預設寬度
 const float windowHeight		= 600;				       //視窗預設高度
   
+int			accumlateX			= 0;					   //沿X軸旋轉的累積角度
 int			old_rot_x			= 0;                       //剛按下滑鼠時的視窗座標x
 int			old_rot_y			= 0;				       //剛按下滑鼠時的視窗座標y
 int			rot_x				= 0;                       //拖曳後的相對座標，用這決定要旋轉幾度
@@ -362,7 +363,21 @@ void Display(void)
 
 	gluLookAt(0, 0, 30.0, 0, 0, 0, 0, 1, 0);                    //視線的座標及方向
 	glTranslatef(0, 0, distance);                               //沿著z軸平移
-	glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+
+	accumlateX = (float)rot_y + (float)record_y;
+	if (-accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD &&
+		 accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD + 180){
+		glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+	}
+	else{
+		rot_y = 0;
+		if (-accumlateX > asin(11.2 / (30 - distance)) / DEG2RAD)
+			record_y = -asin(11.2 / (30 - distance)) / DEG2RAD;
+		else
+			record_y = asin(11.2 / (30 - distance)) / DEG2RAD + 180;
+		glRotatef(record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+	}
+
 	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
 
 	if (noLightMode){
@@ -400,7 +415,8 @@ void showInfo(){
 	glTranslated(0, 0, -distance);
 
 	glTranslated(-15.58, 10.9, 0);
-	sprintf(mss, "Motor Speed: %2.2f", moveSpeed);
+//	sprintf(mss, "Motor Speed: %d = %d + %d", accumlateX, rot_y, record_y);
+	sprintf(mss, "Motor Speed: %.2f", moveSpeed);
 	printText(mss, 0.0, 0.6, 0.0);
 
 	glTranslated(0.0, -1, 0);
