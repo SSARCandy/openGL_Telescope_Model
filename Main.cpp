@@ -28,7 +28,7 @@ int			record_x			= 0;                  //紀錄上一次旋轉的角度x
 int			record_y			= 0;                  //紀錄上一次旋轉的角度y
 
 float		distance			= 0;                  //在平移矩陣(glTranslatef();)中使用
-float		light_position[]	= { 20, 20, 20 };     //光源的位置
+float		light_position[]	= { 20, 20, 20, 0.0f };     //光源的位置
 
 GLFrame     sun;									  
 char		mss[50];								  //放字串
@@ -79,7 +79,7 @@ int main()
 |---------------Control---------------|\n\n\
    政大天文社、政大資訊科學系 許書軒");
 
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
 	glutInitWindowSize(windowWidth, windowHeight);     //視窗長寬
 	glutInitWindowPosition(300, 150);                  //視窗左上角的位置
 	WinNumber = glutCreateWindow("Telescope Model -- SSARCandy");   
@@ -110,15 +110,24 @@ void DrawGround(void)
 	GLfloat y = -11.0f;
 	GLint iLine;
 
+	int i = 0;
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
+		glBegin(GL_QUADS);
 	for (iLine = -fExtent; iLine <= fExtent; iLine += fStep)
 	{
-		glVertex3f(iLine, y, fExtent);    // Draw Z lines
-		glVertex3f(iLine, y, -fExtent);
+		//glVertex3f(iLine, y, fExtent);    // Draw Z lines
+		//glVertex3f(iLine, y, -fExtent);
 
-		glVertex3f(fExtent, y, iLine);
-		glVertex3f(-fExtent, y, iLine);
+		//glVertex3f(fExtent, y, iLine);
+		//glVertex3f(-fExtent, y, iLine);
+
+		(i++) / 2 ? glColor3ub(0, 0, 0) : glColor3ub(255, 255, 255);
+			glVertex3f(iLine, y, iLine);
+			glVertex3f(iLine, y, iLine + fStep);
+			glVertex3f(iLine + fStep, y, iLine + fStep);
+			glVertex3f(iLine + fStep, y, iLine);
+//		glEnd();
 	}
 
 	glEnd();
@@ -151,7 +160,7 @@ void Display(void)
 		sun.ApplyActorTransform();
 		glDisable(GL_LIGHTING);
 		glColor4ub(255, 64, 64, 255);
-		glutWireSphere(2.0, 16, 16);
+		noLightMode ? glutWireSphere(2.0, 16, 16) : glutSolidSphere(2.0, 16, 16);
 		if(!noLightMode) glEnable(GL_LIGHTING);
 	glPopMatrix();
 
@@ -336,8 +345,12 @@ void Display(void)
 
 		glColor4ub(10.0, 10.0, 10.0, 255);
 		glBegin(GL_TRIANGLES); // Draw 置物三腳盤
+		glColor4ub(255.0, 0.0, 0.0, 255);
+
 		glVertex3f(0.0, -5.0, offset);
+		glColor4ub(0.0, 255.0, 0.0, 255);
 		glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
+		glColor4ub(0.0, 0.0, 255.0, 255);
 		glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
 		glEnd();
 		glColor4ub(40, 40, 40, 255);
@@ -358,7 +371,7 @@ void showInfo(){
 
 	glTranslated(-15.58, 10.9, 0);
 	sprintf(mss, "Motor Speed: %2.2f", moveSpeed);
-	printText(mss, 0.0, 0.7, 0.0);
+	printText(mss, 0.0, 0.6, 0.0);
 
 	glTranslated(0.0, -1, 0);
 	// 修正顯示的赤經成實際的赤經格式
@@ -370,7 +383,7 @@ void showInfo(){
 	RA_s = (rRA - RA_h * 15 - RA_m / 4) * 15;
 
 	sprintf(mss, "RA  : %.2dh %.2dm %.2ds", RA_h, RA_m, RA_s);
-	printText(mss, 0.0, 0.7, 0.0);
+	printText(mss, 0.0, 0.6, 0.0);
 
 	glTranslated(0.0, -1, 0);
 	// 修正顯示的赤緯成實際的赤緯
@@ -384,7 +397,7 @@ void showInfo(){
 	Dec_s = (int)((realDec - Dec_d) * 3600) - Dec_m * 60;
 
 	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
-	printText(mss, 0.0, 0.7, 0.0);
+	printText(mss, 0.0, 0.6, 0.0);
 }
 
 void printText(char* str, float r, float g, float b){
@@ -398,9 +411,7 @@ void updateRA_Dec(){
 	if (mykey[1]) Dec -= moveSpeed;
 	if (mykey[2]) RA -= moveSpeed;
 	if (mykey[3]) RA += moveSpeed;
-	if (mykey[4] && moveSpeed < 9.95) moveSpeed += 0.05;
-	if (mykey[5] && moveSpeed > 0.06) moveSpeed -= 0.05;
-
+	
 	if (RA < -360) RA += 360;
 	if (RA > 360) RA -= 360;
 
@@ -494,10 +505,10 @@ void myKeys(unsigned char key, int x, int y)
 		mykey[3] = true;
 		break;
 	case '+':
-		mykey[4] = true;
+		if (moveSpeed < 9.95) moveSpeed += 0.05;
 		break;
 	case '-':
-		mykey[5] = true;
+		if (moveSpeed > 0.06) moveSpeed -= 0.05;
 		break;
 	case 'l':
 	case 'L':
@@ -544,12 +555,6 @@ void myKeysUp(unsigned char key, int x, int y){
 	case 'd':
 	case 'D':
 		mykey[3] = false;
-		break;
-	case '+':
-		mykey[4] = false;
-		break;
-	case '-':
-		mykey[5] = false;
 		break;
 	}
 }
@@ -644,6 +649,11 @@ void SetupRC()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Enable color tracking
 	glEnable(GL_COLOR_MATERIAL);
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+	glShadeModel(GL_SMOOTH);
+
+	glEnable(GL_MULTISAMPLE);
 
 	sun.SetOrigin(light_position[0], light_position[1], light_position[2]);
 }
