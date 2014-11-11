@@ -8,37 +8,38 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 //#include <string>
 //#include <GL\glut.h>
 #include "lib\gltools.h"
+#include "lib\math3d.h"
 #include "lib\glFrame.h"
 
 
-int			WinNumber			= NULL;               //用來放置視窗代碼
-const float DEG2RAD				= 3.14159 / 180.0;    //角度轉弧度
-const float windowWidth			= 800;				  //視窗預設寬度
-const float windowHeight		= 600;				  //視窗預設高度
-
-int			old_rot_x			= 0;                  //剛按下滑鼠時的視窗座標x
-int			old_rot_y			= 0;				  //剛按下滑鼠時的視窗座標y
-int			rot_x				= 0;                  //拖曳後的相對座標，用這決定要旋轉幾度
+int			WinNumber			= NULL;                    //用來放置視窗代碼
+const float DEG2RAD				= 3.14159 / 180.0;         //角度轉弧度
+const float windowWidth			= 800;				       //視窗預設寬度
+const float windowHeight		= 600;				       //視窗預設高度
+  
+int			old_rot_x			= 0;                       //剛按下滑鼠時的視窗座標x
+int			old_rot_y			= 0;				       //剛按下滑鼠時的視窗座標y
+int			rot_x				= 0;                       //拖曳後的相對座標，用這決定要旋轉幾度
 int			rot_y				= 0;
-int			record_x			= 0;                  //紀錄上一次旋轉的角度x
-int			record_y			= 0;                  //紀錄上一次旋轉的角度y
+int			record_x			= 0;                       //紀錄上一次旋轉的角度x
+int			record_y			= 0;                       //紀錄上一次旋轉的角度y
 
-float		distance			= 0;                  //在平移矩陣(glTranslatef();)中使用
-float		light_position[]	= { 20, 20, 20, 0.0f };     //光源的位置
+float		distance			= -10;                     //在平移矩陣(glTranslatef();)中使用
+float		fLightPos[]			= { 20, 20, 20, 0.0f };    //光源的位置
+float		fLightPosMirror[]   = { 20, -20, 20, 0.0f };   //倒影光源的位置
 
-GLFrame     sun;									  
-char		mss[50];								  //放字串
-double		RA					= 0.0;				  //赤經
-double		Dec					= 0.0;				  //赤緯
-double		moveSpeed			= 0.2;				  //馬達移動速度
-float		target_RA			= 0.0;				  //GOTO-目的地RA
-float		target_Dec			= 0.0;				  //GOTO-目的地Dec
-bool		mykey[6]			= { false };		  //記錄按鍵按下狀態
-bool		noLightMode			= false;			  //Wire/Shading Mode
+GLFrame     sun;								
+char		mss[50];									   //放字串
+double		RA					= 0.0;					   //赤經
+double		Dec					= 0.0;					   //赤緯
+double		moveSpeed			= 0.2;			  		   //馬達移動速度
+float		target_RA			= 0.0;					   //GOTO-目的地RA
+float		target_Dec			= 0.0;					   //GOTO-目的地Dec
+bool		mykey[6]			= { false };			   //記錄按鍵按下狀態
+bool		noLightMode			= false;				   //Wire/Shading Mode
 
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
@@ -48,6 +49,8 @@ const float sun_Dec				= 156.0;
 
 
 void DrawGround(void);								  //畫地板格線
+void DrawTelescope(void);					          //畫望遠鏡 or 望遠鏡影子
+void DrawSun(void);									  //畫太陽	
 void SetLightSource(void);							  //設定光源屬性
 void SetMaterial(void);								  //設定材質屬性
 void SetupRC();
@@ -106,64 +109,40 @@ int main()
 void DrawGround(void)
 {
 	GLfloat fExtent = 200.0f;
-	GLfloat fStep = 5.0f;
-	GLfloat y = -11.0f;
-	GLint iLine;
+	GLfloat fStep = 10.0f;
+	GLfloat y = -11.2f;
+	GLint xLine, zLine, iLine;
 
-	int i = 0;
-
-	//glBegin(GL_LINES);
-		glBegin(GL_QUADS);
-	for (iLine = -fExtent; iLine <= fExtent; iLine += fStep)
-	{
-		//glVertex3f(iLine, y, fExtent);    // Draw Z lines
-		//glVertex3f(iLine, y, -fExtent);
-
-		//glVertex3f(fExtent, y, iLine);
-		//glVertex3f(-fExtent, y, iLine);
-
-		(i++) / 2 ? glColor3ub(0, 0, 0) : glColor3ub(255, 255, 255);
-			glVertex3f(iLine, y, iLine);
-			glVertex3f(iLine, y, iLine + fStep);
-			glVertex3f(iLine + fStep, y, iLine + fStep);
-			glVertex3f(iLine + fStep, y, iLine);
-//		glEnd();
+	if (!noLightMode){
+		int i = 0;
+		for (zLine = -fExtent; zLine <= fExtent; zLine += fStep){
+			for (xLine = -fExtent; xLine <= fExtent; xLine += fStep){
+				(i++) % 2 ? glColor4ub(0, 0, 0, 180) : glColor4ub(255, 255, 255, 180);
+				glBegin(GL_QUADS);
+					glVertex3f(xLine, y, zLine);
+					glVertex3f(xLine, y, zLine + fStep);
+					glVertex3f(xLine + fStep, y, zLine + fStep);
+					glVertex3f(xLine + fStep, y, zLine);
+				glEnd();
+			}
+		}
 	}
+	else{
+		glColor4ub(200, 200, 200, 255);
 
-	glEnd();
+		for (iLine = -fExtent; iLine <= fExtent; iLine += fStep){
+			glBegin(GL_LINES);
+				glVertex3f(iLine, y, fExtent);    // Draw Z lines
+				glVertex3f(iLine, y, -fExtent);
+
+				glVertex3f(fExtent, y, iLine);
+				glVertex3f(-fExtent, y, iLine);
+			glEnd();
+		}
+	}
 }
 
-void Display(void)
-{
-	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//根據是否開光影來塗背景顏色
-
-	updateRA_Dec(); //控制 RA, Dec 的改變
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	noLightMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Shading = true/false
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	gluLookAt(0, 0, 30.0, 0, 0, 0, 0, 1, 0);                    //視線的座標及方向
-	glTranslatef(0, 0, distance);                               //沿著z軸平移
-	glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
-	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
-
-	noLightMode ? glColor4ub(200, 200, 200, 255) : glColor4ub(40, 40, 40, 255);
-	DrawGround();												//畫地板格線
-
-
-	///////////////////
-	// 畫光源(太陽)
-	glPushMatrix();
-		sun.ApplyActorTransform();
-		glDisable(GL_LIGHTING);
-		glColor4ub(255, 64, 64, 255);
-		noLightMode ? glutWireSphere(2.0, 16, 16) : glutSolidSphere(2.0, 16, 16);
-		if(!noLightMode) glEnable(GL_LIGHTING);
-	glPopMatrix();
-
+void DrawTelescope(void){
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
 		drawCube(noLightMode, 1.0, 2.3, 3.2, 2.0, 80, 0, 0);
@@ -198,7 +177,7 @@ void Display(void)
 		glTranslated(0, 0, -4.0);                                 ////////////////
 
 		glPushMatrix();
-			glColor4ub(0, 0, 0,255);
+			glColor4ub(0, 0, 0, 255);
 			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, 8); // 赤經、赤緯軸交接處
 		glPopMatrix();
 
@@ -221,7 +200,7 @@ void Display(void)
 		glTranslated(0, 0.5, 0);  //調整旋轉中心點
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			drawCube(noLightMode,  1.0, 2.4, 4, 2.4,80, 0, 0);
+			drawCube(noLightMode, 1.0, 2.4, 4, 2.4, 80, 0, 0);
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
@@ -262,14 +241,14 @@ void Display(void)
 			glRotated(90, 0, 1, 0);
 			glTranslated(0, -4.7, -3);
 			glTranslated(0, 0, 3);      //調整選中心轉點
-			glRotated(90+Dec, 0, 1, 0); //根據赤緯做旋轉
+			glRotated(90 + Dec, 0, 1, 0); //根據赤緯做旋轉
 			glTranslated(0, 0, -3);     //調整選轉中心點
-	
+
 			glColor4ub(20, 20, 20, 255);
 			//gltDrawUnitAxes();
 			gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, Slice, 24); // Telescope
 			gluDisk(gluNewQuadric(), 0.3, 2.2, Slice, 24);             // Telescope背面
-			
+
 			glPushMatrix();
 				glTranslated(0, 2.3, 3.3);
 				drawCube(noLightMode, 1.0, 1, 0.7, 5, 80, 60, 60);
@@ -278,7 +257,6 @@ void Display(void)
 
 			glPushMatrix();
 				glTranslated(0, 0, 6);
-
 				glColor4ub(100, 100, 100, 100);               // Glass - Transparency
 				gluDisk(gluNewQuadric(), 0, 2.2, Slice, 24);  // Telescope正面(卡賽格林式)
 				glColor4ub(20, 20, 20, 255);
@@ -302,7 +280,7 @@ void Display(void)
 			glPopMatrix();
 
 			glRotated(45, 0, 0, 1);
-			glTranslated(0,-3,0);
+			glTranslated(0, -3, 0);
 			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, 16); // 尋星鏡
 			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // 尋星鏡背面
 			glTranslated(0, 0, 3.0);
@@ -317,45 +295,97 @@ void Display(void)
 	/**------------------ Draw 主鏡 END------------------**/
 
 	/**------------------ Draw 腳架 START--------------------**/
-		const double offset = -3.2;
-		glPopMatrix();   // restore global matrix
-			glPushMatrix();  // save global matrix
-				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
-				glRotated(35, 1, 0, 0);
-				glTranslated(0, -2, 0);
-				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
-			glPopMatrix();   // restore global matrix
+	const double offset = -3.2;
+	glPopMatrix();   // restore global matrix
+	glPushMatrix();  // save global matrix
+		glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
+		glRotated(35, 1, 0, 0);
+		glTranslated(0, -2, 0);
+		drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+	glPopMatrix();   // restore global matrix
 
-			glPushMatrix();  // save global matrix
-				glRotated(120, 0, 1, 0);
-				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
-				glRotated(35, 1, 0, 0);
-				glTranslated(0, -2, 0);
-				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
-			glPopMatrix();   // restore global matrix
+	glPushMatrix();  // save global matrix
+		glRotated(120, 0, 1, 0);
+		glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
+		glRotated(35, 1, 0, 0);
+		glTranslated(0, -2, 0);
+		drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+	glPopMatrix();   // restore global matrix
 
-			glPushMatrix();  // save global matrix
-				glRotated(240, 0, 1, 0);
-				glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
-				glRotated(35, 1, 0, 0);
-				glTranslated(0, -2, 0);
-				drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
-			glPopMatrix();   // restore global matrix
-		glPushMatrix();  // save global matrix
+	glPushMatrix();  // save global matrix
+		glRotated(240, 0, 1, 0);
+		glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
+		glRotated(35, 1, 0, 0);
+		glTranslated(0, -2, 0);
+		drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+	glPopMatrix();   // restore global matrix
+	glPushMatrix();  // save global matrix
 
-		glColor4ub(10.0, 10.0, 10.0, 255);
-		glBegin(GL_TRIANGLES); // Draw 置物三腳盤
+	glColor4ub(10.0, 10.0, 10.0, 255);
+	glBegin(GL_TRIANGLES); // Draw 置物三腳盤
 		glColor4ub(255.0, 0.0, 0.0, 255);
-
 		glVertex3f(0.0, -5.0, offset);
 		glColor4ub(0.0, 255.0, 0.0, 255);
 		glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
 		glColor4ub(0.0, 0.0, 255.0, 255);
 		glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
-		glEnd();
-		glColor4ub(40, 40, 40, 255);
-	/**------------------ Draw 腳架 END  --------------------**/
+	glEnd();
+	glColor4ub(40, 40, 40, 255);
+
 	glPopMatrix(); // restore global matrix
+	/**------------------ Draw 腳架 END  --------------------**/
+}
+
+void DrawSun(){
+	///////////////////
+	// 畫光源(太陽)
+	glPushMatrix();
+		sun.ApplyActorTransform();
+		glDisable(GL_LIGHTING);
+		glColor4ub(255, 64, 64, 255);
+		noLightMode ? glutWireSphere(2.0, 16, 16) : glutSolidSphere(2.0, 16, 16);
+		if(!noLightMode) glEnable(GL_LIGHTING);
+	glPopMatrix();
+}
+
+void Display(void)
+{
+	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//根據是否開光影來塗背景顏色
+
+	updateRA_Dec(); //控制 RA, Dec 的改變
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	noLightMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Shading = true/false
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	gluLookAt(0, 0, 30.0, 0, 0, 0, 0, 1, 0);                    //視線的座標及方向
+	glTranslatef(0, 0, distance);                               //沿著z軸平移
+	glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+
+	if (noLightMode){
+		DrawSun();
+		DrawTelescope();//畫望遠鏡
+		DrawGround();	     //畫地板格線
+	}
+	else{
+		DrawSun();
+		DrawTelescope();//畫望遠鏡
+		//// Move light under floor to light the "reflected" world
+		glLightfv(GL_LIGHT1, GL_POSITION, fLightPosMirror);
+		glPushMatrix();
+			glFrontFace(GL_CW);// geometry is mirrored, swap orientation
+				glScalef(1.0f, -1.0f, 1.0f);
+				glTranslated(0, 22.5, 0);
+				DrawSun();		      //畫地板反光的太陽
+				DrawTelescope(); //畫地板反光的望遠鏡
+			glFrontFace(GL_CCW);
+		glPopMatrix();
+		DrawGround();												
+		glLightfv(GL_LIGHT1, GL_POSITION, fLightPos);// Restore correct lighting and draw the world correctly
+	}
 
 	glPushMatrix();// save global matrix
 		showInfo();// 在螢幕上寫字
@@ -403,7 +433,13 @@ void showInfo(){
 void printText(char* str, float r, float g, float b){
 	glColor3f(r, g, b);     //set font color
 	glRasterPos2i(0, 0);    //set font start position
-	for (int i = 0; i<strlen(str); i++)		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+
+	//glDisable(GL_LIGHTING);
+
+	for (unsigned i = 0; i<strlen(str); i++)		
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+
+	//glEnable(GL_LIGHTING);
 }
 
 void updateRA_Dec(){
@@ -421,8 +457,8 @@ void updateRA_Dec(){
 
 // Draw customized Wire/Solid Cubes
 void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float r, float g, float b){
-	glColor4ub(r+10, g+10, b+10, 255);
 	if (!noLightMode) {
+		glColor4ub(r + 10, g + 10, b + 10, 255);
 		glScaled(sX, sY, sZ);
 		glutSolidCube(1.0);
 		glColor4ub(r, g, b, 255);
@@ -430,6 +466,7 @@ void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float 
 	}
 	else
 	{
+		glColor4ub(r + 10, g + 10, b + 10, 255);
 		glPushMatrix();
 			glScaled(sX, sY, sZ);
 			glutWireCube(1.0);
@@ -513,6 +550,7 @@ void myKeys(unsigned char key, int x, int y)
 	case 'l':
 	case 'L':
 		noLightMode = !noLightMode;
+		noLightMode ? glDisable(GL_FOG) : glEnable(GL_FOG);
 		break;
 	case 'g':
 	case 'G':
@@ -624,7 +662,7 @@ void SetLightSource()
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);       //散射光(Diffuse Light)
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);     //反射光(Specular Light)
 
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position);     //光的座標
+	glLightfv(GL_LIGHT1, GL_POSITION, fLightPos);     //光的座標
 
 	glEnable(GL_LIGHT1);
 	glEnable(GL_DEPTH_TEST);                               //啟動深度測試
@@ -644,16 +682,21 @@ void SetMaterial()
 // This function does any needed initialization on the rendering context.
 void SetupRC()
 {
-	glEnable(GL_BLEND);
-	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// Enable color tracking
-	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_BLEND);
+	glEnable(GL_COLOR_MATERIAL);	// Enable color tracking
+
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
 	glShadeModel(GL_SMOOTH);
-
 	glEnable(GL_MULTISAMPLE);
 
-	sun.SetOrigin(light_position[0], light_position[1], light_position[2]);
+	// Setup Fog parameters
+	glEnable(GL_FOG);	// Turn Fog on
+	float fLowLight[] = { 0.8, 0.8, 0.8, 1.0 };	// Set fog color to match background
+	glFogfv(GL_FOG_COLOR, fLowLight);
+	glFogf(GL_FOG_START, 100.0f);  // How far away does the fog start
+	glFogf(GL_FOG_END, 250.0f);	   // How far away does the fog stop  
+	glFogi(GL_FOG_MODE, GL_LINEAR);// Which fog equation do I use?     
+
+	sun.SetOrigin(fLightPos[0], fLightPos[1], fLightPos[2]);
 }
