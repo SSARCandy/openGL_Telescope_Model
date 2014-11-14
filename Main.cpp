@@ -337,7 +337,7 @@ void DrawTelescope(void){
 	/**------------------ Draw 腳架 END  --------------------**/
 }
 
-void DrawSun(){
+void DrawSun(void){
 	///////////////////
 	// 畫光源(太陽)
 	glPushMatrix();
@@ -349,6 +349,28 @@ void DrawSun(){
 	glPopMatrix();
 }
 
+void CameraView(bool noLightMode){
+	if (!noLightMode){
+		accumlateX = (float)rot_y + (float)record_y;
+		if (-accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD &&
+			accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD + 180){
+			glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+		}
+		else{
+			rot_y = 0;
+			if (-accumlateX > asin(11.2 / (30 - distance)) / DEG2RAD)
+				record_y = -asin(11.2 / (30 - distance)) / DEG2RAD;
+			else
+				record_y = asin(11.2 / (30 - distance)) / DEG2RAD + 180;
+			glRotatef(record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+		}
+		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+	}
+	else{
+		glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
+		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+	}
+}
 void Display(void)
 {
 	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//根據是否開光影來塗背景顏色
@@ -364,21 +386,7 @@ void Display(void)
 	gluLookAt(0, 0, 30.0, 0, 0, 0, 0, 1, 0);                    //視線的座標及方向
 	glTranslatef(0, 0, distance);                               //沿著z軸平移
 
-	accumlateX = (float)rot_y + (float)record_y;
-	if (-accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD &&
-		 accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD + 180){
-		glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
-	}
-	else{
-		rot_y = 0;
-		if (-accumlateX > asin(11.2 / (30 - distance)) / DEG2RAD)
-			record_y = -asin(11.2 / (30 - distance)) / DEG2RAD;
-		else
-			record_y = asin(11.2 / (30 - distance)) / DEG2RAD + 180;
-		glRotatef(record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
-	}
-
-	glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
+	CameraView(noLightMode);
 
 	if (noLightMode){
 		DrawSun();
