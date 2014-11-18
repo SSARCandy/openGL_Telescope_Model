@@ -40,7 +40,8 @@ double		moveSpeed			= 0.2;			  		   //馬達移動速度
 float		target_RA			= 0.0;					   //GOTO-目的地RA
 float		target_Dec			= 0.0;					   //GOTO-目的地Dec
 bool		mykey[6]			= { false };			   //記錄按鍵按下狀態
-bool		noLightMode			= false;				   //Wire/Shading Mode
+bool		noLightMode			= true;				       //Wire/Shading Mode
+double		angle				= 35;					   //角架張角 MAX=35, min=0
 
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
@@ -48,10 +49,6 @@ const int   Slice				= 64;
 const float sun_RA				= 42.7;
 const float sun_Dec				= 156.0;
 
-
-void DrawGround(void);								  //畫地板格線
-void DrawTelescope(void);					          //畫望遠鏡 or 望遠鏡影子
-void DrawSun(void);									  //畫太陽	
 void SetLightSource(void);							  //設定光源屬性
 void SetMaterial(void);								  //設定材質屬性
 void SetupRC();
@@ -65,21 +62,26 @@ void Display(void);									  //畫面刷新
 void showInfo();									  //顯示訊息於螢幕上(赤經、赤緯等)
 void printText(char*, float, float, float);           //印字
 void updateRA_Dec();								  //更新赤經赤緯
+void DrawGround(void);								  //畫地板格線
+void DrawTelescope(void);					          //畫望遠鏡 or 望遠鏡影子
+void DrawSun(void);									  //畫太陽	
 void drawCube(bool, float, float, float, float, float, float, float);//客製化 Wire/Solid Cubes
 
 int main()
 {
 	printf("\
 |---------------Control---------------|\n\n\
-  上下鍵 | 調整遠近\n\
-  滑鼠   | 拖拉調整視角\n\
-  A, D   | 調整赤經 (RA)\n\
-  W, S   | 調整赤緯 (Dec)\n\
-  +, -   | 調整馬達速度 (Motor Speed)\n\
-  G      | GoTo 自動追蹤太陽\n\
-  P      | Park 歸位至初始位置\n\
+  上下鍵 | 調整遠近                    \n\
+  滑鼠   | 拖拉調整視角                \n\
+  A, D   | 調整赤經 (RA)               \n\
+  W, S   | 調整赤緯 (Dec)              \n\
+  [, ]   | 調整腳架張角                \n\
+  +, -   | 調整馬達速度 (Motor Speed)  \n\
+  G      | GoTo 自動追蹤太陽           \n\
+  P      | Park 歸位至初始位置         \n\
+  C      | Crazy 瘋狂亂移動所有可動關節\n\
   L      | Wire/Shading Mode (開關光源)\n\
-  Esc    | 關閉程式\n\n\
+  Esc    | 關閉程式                    \n\n\
 |---------------Control---------------|\n\n\
    政大天文社、政大資訊科學系 許書軒");
 
@@ -144,6 +146,10 @@ void DrawGround(void)
 }
 
 void DrawTelescope(void){
+	glPushMatrix();
+	float translateUP = 11 * cos(angle*DEG2RAD) - 11 * cos(35 * DEG2RAD);
+	glTranslated(0, translateUP, 0);
+
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
 		drawCube(noLightMode, 1.0, 2.3, 3.2, 2.0, 80, 0, 0);
@@ -296,32 +302,32 @@ void DrawTelescope(void){
 	/**------------------ Draw 主鏡 END------------------**/
 
 	/**------------------ Draw 腳架 START--------------------**/
-	const double offset = -3.2;
 	glPopMatrix();   // restore global matrix
 	glPushMatrix();  // save global matrix
-		glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
-		glRotated(35, 1, 0, 0);
-		glTranslated(0, -2, 0);
-		drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+		glTranslated(0, -1.6, -1.0);
+		glRotated(angle, 1, 0, 0);
+		glTranslated(0, -5.9, 0);
+		drawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
 	glPopMatrix();   // restore global matrix
 
 	glPushMatrix();  // save global matrix
 		glRotated(120, 0, 1, 0);
-		glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
-		glRotated(35, 1, 0, 0);
-		glTranslated(0, -2, 0);
-		drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+		glTranslated(0, -1.6, -1.0);
+		glRotated(angle, 1, 0, 0);
+		glTranslated(0, -5.9, 0);
+		drawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
 	glPopMatrix();   // restore global matrix
 
 	glPushMatrix();  // save global matrix
 		glRotated(240, 0, 1, 0);
-		glTranslated(0, -6 * cos(35.0*DEG2RAD), offset);
-		glRotated(35, 1, 0, 0);
-		glTranslated(0, -2, 0);
-		drawCube(noLightMode, 1.0, 1, 11, 0.2, 70, 70, 70);
+		glTranslated(0, -1.6, -1.0);
+		glRotated(angle, 1, 0, 0);
+		glTranslated(0, -5.9, 0);
+		drawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
 	glPopMatrix();   // restore global matrix
 	glPushMatrix();  // save global matrix
 
+	double offset = -11.5 * sin(angle*DEG2RAD) / 2 - (1 - angle / 35);
 	glColor4ub(10.0, 10.0, 10.0, 255);
 	glBegin(GL_TRIANGLES); // Draw 置物三腳盤
 		glColor4ub(255.0, 0.0, 0.0, 255);
@@ -335,6 +341,8 @@ void DrawTelescope(void){
 
 	glPopMatrix(); // restore global matrix
 	/**------------------ Draw 腳架 END  --------------------**/
+
+	glPopMatrix();
 }
 
 void DrawSun(void){
@@ -371,6 +379,7 @@ void CameraView(bool noLightMode){
 		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
 	}
 }
+
 void Display(void)
 {
 	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//根據是否開光影來塗背景顏色
@@ -391,7 +400,7 @@ void Display(void)
 	if (noLightMode){
 		DrawSun();
 		DrawTelescope();//畫望遠鏡
-		DrawGround();	     //畫地板格線
+		DrawGround();	//畫地板格線
 	}
 	else{
 		DrawSun();
@@ -399,10 +408,10 @@ void Display(void)
 		//// Move light under floor to light the "reflected" world
 		glLightfv(GL_LIGHT1, GL_POSITION, fLightPosMirror);
 		glPushMatrix();
-			glFrontFace(GL_CW);// geometry is mirrored, swap orientation
+			glFrontFace(GL_CW);  // geometry is mirrored, swap orientation
 				glScalef(1.0f, -1.0f, 1.0f);
 				glTranslated(0, 22.5, 0);
-				DrawSun();		      //畫地板反光的太陽
+				DrawSun();		 //畫地板反光的太陽
 				DrawTelescope(); //畫地板反光的望遠鏡
 			glFrontFace(GL_CCW);
 		glPopMatrix();
@@ -545,6 +554,18 @@ void GOTO(int i){
 	}
 }
 
+void goCrazy(int i){
+	RA += 3;
+	Dec += 3;
+
+	((i / 35) % 2) == 0 ? angle-- : angle++;
+	
+	if (i < 700){
+		glutTimerFunc(10, goCrazy, ++i);
+		glutPostRedisplay();
+	}
+}
+
 void myKeys(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -570,6 +591,16 @@ void myKeys(unsigned char key, int x, int y)
 		break;
 	case '-':
 		if (moveSpeed > 0.06) moveSpeed -= 0.05;
+		break;
+	case ']':
+		if (angle < 35) angle++;
+		break;
+	case '[':
+		if (angle > 0) angle--;
+		break;
+	case 'c':
+	case 'C':
+		goCrazy(35-angle);
 		break;
 	case 'l':
 	case 'L':
