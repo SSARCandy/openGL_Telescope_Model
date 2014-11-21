@@ -39,13 +39,15 @@ double		Dec					= 0.0;					   //赤緯
 double		moveSpeed			= 0.2;			  		   //馬達移動速度
 float		target_RA			= 0.0;					   //GOTO-目的地RA
 float		target_Dec			= 0.0;					   //GOTO-目的地Dec
+double		angle				= 35;					   //角架張角 MAX=35, min=0
 bool		mykey[6]			= { false };			   //記錄按鍵按下狀態
 bool		noLightMode			= true;				       //Wire/Shading Mode
-double		angle				= 35;					   //角架張角 MAX=35, min=0
+bool        polygonoffset		= true;				   //polygonoffset is on/off
+bool		antiAlias			= true;					   //是否開啟反鋸齒
 
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
-const int   Slice				= 64;
+const int   Slice				= 24;
 const float sun_RA				= 42.7;
 const float sun_Dec				= 156.0;
 
@@ -63,14 +65,14 @@ void showInfo();									  //顯示訊息於螢幕上(赤經、赤緯等)
 void printText(char*, float, float, float);           //印字
 void updateRA_Dec();								  //更新赤經赤緯
 void DrawGround(void);								  //畫地板格線
-void DrawTelescope(void);					          //畫望遠鏡 or 望遠鏡影子
+void DrawTelescope(bool);					          //畫望遠鏡 or 望遠鏡影子
 void DrawSun(void);									  //畫太陽	
 void drawCube(bool, float, float, float, float, float, float, float);//客製化 Wire/Solid Cubes
 
 int main()
 {
 	printf("\
-|---------------Control---------------|\n\n\
+|---------------Control---------------|\n\
   上下鍵 | 調整遠近                    \n\
   滑鼠   | 拖拉調整視角                \n\
   A, D   | 調整赤經 (RA)               \n\
@@ -80,9 +82,13 @@ int main()
   G      | GoTo 自動追蹤太陽           \n\
   P      | Park 歸位至初始位置         \n\
   C      | Crazy 瘋狂亂移動所有可動關節\n\
-  L      | Wire/Shading Mode (開關光源)\n\
-  Esc    | 關閉程式                    \n\n\
 |---------------Control---------------|\n\n\
+|---------------Setting---------------|\n\
+  L      | Shading on/off      (光源)  \n\
+  K      | Antialias on/off    (反鋸齒)\n\
+  J      | PolygonOffset on/off(實心)  \n\
+  Esc    | 關閉程式                    \n\
+|---------------Setting---------------|\n\n\
    政大天文社、政大資訊科學系 許書軒");
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
@@ -102,6 +108,7 @@ int main()
 	SetMaterial();
 	SetupRC();
 
+	//glEnable(GL_MULTISAMPLE);
 	glutMainLoop();
 
 	return 0;
@@ -121,7 +128,7 @@ void DrawGround(void)
 		for (zLine = -fExtent; zLine <= fExtent; zLine += fStep){
 			for (xLine = -fExtent; xLine <= fExtent; xLine += fStep){
 				(i++) % 2 ? glColor4ub(0, 0, 0, 180) : glColor4ub(255, 255, 255, 180);
-				glBegin(GL_QUADS);
+				glBegin(GL_POLYGON);
 					glVertex3f(xLine, y, zLine);
 					glVertex3f(xLine, y, zLine + fStep);
 					glVertex3f(xLine + fStep, y, zLine + fStep);
@@ -130,22 +137,22 @@ void DrawGround(void)
 			}
 		}
 	}
-	else{
+//	else{
 		glColor4ub(200, 200, 200, 255);
 
 		for (iLine = -fExtent; iLine <= fExtent; iLine += fStep){
 			glBegin(GL_LINES);
-				glVertex3f(iLine, y, fExtent);    // Draw Z lines
-				glVertex3f(iLine, y, -fExtent);
+				glVertex3f(iLine, y+0.001, fExtent);    // Draw Z lines
+				glVertex3f(iLine, y+0.001, -fExtent);
 
-				glVertex3f(fExtent, y, iLine);
-				glVertex3f(-fExtent, y, iLine);
+				glVertex3f(fExtent, y+0.001, iLine);
+				glVertex3f(-fExtent, y+0.001, iLine);
 			glEnd();
 		}
-	}
+//	}
 }
 
-void DrawTelescope(void){
+void DrawTelescope(bool p){
 	glPushMatrix();
 	float translateUP = 11 * cos(angle*DEG2RAD) - 11 * cos(35 * DEG2RAD);
 	glTranslated(0, translateUP, 0);
@@ -156,7 +163,7 @@ void DrawTelescope(void){
 	glPopMatrix();     // restore global matrix
 
 	glPushMatrix();    // save global matrix
-		glColor4ub(70, 70, 70, 255);
+		if(!p) glColor4ub(70, 70, 70, 255);
 		glTranslated(0, -1.6, 0);
 		glRotated(90, 1, 0, 0);
 		gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, 6); /////////
@@ -168,7 +175,7 @@ void DrawTelescope(void){
 
 	/**------------------ Draw 赤道儀極軸(赤經軸) START----------------**/
 	glPushMatrix();    // save global matrix
-		glColor4ub(90, 10, 10, 255);
+		if (!p) glColor4ub(90, 10, 10, 255);
 		glTranslated(0, 2, 0);
 		glRotated(66.5, 0, 0, 1);
 		glRotated(90, 1, 0, 0);
@@ -177,23 +184,23 @@ void DrawTelescope(void){
 		glTranslated(0, 0, 3.5);
 		gluDisk(gluNewQuadric(), 0, 1.2, Slice, 16);               // 蓋子
 
-		glColor4ub(0, 0, 0, 255);                                 ////////////////
+		if (!p) glColor4ub(0, 0, 0, 255);                                 ////////////////
 		gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 0.5f, Slice, 8); ////////////////
 		glTranslated(0, 0, 0.5);								  //極軸望遠鏡
 		gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);               //極軸望遠鏡背面
 		glTranslated(0, 0, -4.0);                                 ////////////////
 
 		glPushMatrix();
-			glColor4ub(0, 0, 0, 255);
+			if (!p) glColor4ub(0, 0, 0, 255);
 			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, 8); // 赤經、赤緯軸交接處
 		glPopMatrix();
 
-		glColor4ub(0, 0, 255, 200);
+		if (!p) glColor4ub(0, 0, 255, 200);
 		glTranslated(0, 0, 3.5);
 		gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, Slice, 8); // 極望蓋子
 		glTranslated(0, 0, 1.0);
 		gluDisk(gluNewQuadric(), 0, 0.6, Slice, 8);               // 極望蓋子
-		glColor4ub(82, 0, 0, 255);
+		if (!p) glColor4ub(82, 0, 0, 255);
 	glPopMatrix();     // restore global matrix
 	/**------------------ Draw 赤道儀極軸(赤經軸) END------------------**/
 
@@ -211,7 +218,7 @@ void DrawTelescope(void){
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			glColor4ub(0, 0, 0, 255);
+			if (!p) glColor4ub(0, 0, 0, 255);
 			glTranslated(0, -1.9, 0);
 			glRotated(90, 1, 0, 0);
 			gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, 6);  /////////
@@ -223,12 +230,12 @@ void DrawTelescope(void){
 
 	/**------------------ Draw 重錘杆&重錘 START----------------**/
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			glColor4ub(70, 70, 70, 255);
+			if (!p) glColor4ub(70, 70, 70, 255);
 			glTranslated(0, 8, 0);
 			glRotated(90, 1, 0, 0);
 			gluCylinder(gluNewQuadric(), 0.2f, 0.2f, 6.0f, 8, 32); // HammerStick
 
-			glColor4ub(70, 50, 50, 255);
+			if (!p) glColor4ub(70, 50, 50, 255);
 			glTranslated(0, 0, 1);//由重錘杆底步向上移
 			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, 8); // Hammer1
 			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1底面
@@ -251,22 +258,22 @@ void DrawTelescope(void){
 			glRotated(90 + Dec, 0, 1, 0); //根據赤緯做旋轉
 			glTranslated(0, 0, -3);     //調整選轉中心點
 
-			glColor4ub(20, 20, 20, 255);
+			if (!p) glColor4ub(20, 20, 20, 255);
 			//gltDrawUnitAxes();
-			gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, Slice, 24); // Telescope
+			gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, Slice, 16); // Telescope
 			gluDisk(gluNewQuadric(), 0.3, 2.2, Slice, 24);             // Telescope背面
 
 			glPushMatrix();
 				glTranslated(0, 2.3, 3.3);
 				drawCube(noLightMode, 1.0, 1, 0.7, 5, 80, 60, 60);
-				glColor4ub(20, 20, 20, 255);
+				if (!p) glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
 			glPushMatrix();
 				glTranslated(0, 0, 6);
-				glColor4ub(100, 100, 100, 100);               // Glass - Transparency
-				gluDisk(gluNewQuadric(), 0, 2.2, Slice, 24);  // Telescope正面(卡賽格林式)
-				glColor4ub(20, 20, 20, 255);
+				if (!p) glColor4ub(100, 100, 100, 100);               // Glass - Transparency
+				gluDisk(gluNewQuadric(), 0, 2.2, Slice, 16);  // Telescope正面(卡賽格林式)
+				if (!p) glColor4ub(20, 20, 20, 255);
 
 				glTranslated(0, 0, 0.5);
 				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.5f, Slice, 16); // 前反射面
@@ -281,19 +288,19 @@ void DrawTelescope(void){
 
 				glTranslated(0, 0, -1.0);
 				gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, Slice, 8); // 目鏡
-				glColor4ub(100, 100, 100, 150);						      // Glass - Transparency
+				if (!p) glColor4ub(100, 100, 100, 150);						      // Glass - Transparency
 				gluDisk(gluNewQuadric(), 0, 0.5, Slice, 8);				  // 目鏡背面
-				glColor4ub(20, 20, 20, 255);
+				if (!p) glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
 			glRotated(45, 0, 0, 1);
 			glTranslated(0, -3, 0);
-			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, 16); // 尋星鏡
+			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, 8); // 尋星鏡
 			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // 尋星鏡背面
 			glTranslated(0, 0, 3.0);
 			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // 尋星鏡正面
 			glTranslated(0, 0, -3.5);
-			gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, Slice, 8);  // 目鏡
+			gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, Slice, 4);  // 目鏡
 			gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);                // 目鏡背面
 
 			glTranslated(0, 0.6, 1.5);
@@ -328,16 +335,16 @@ void DrawTelescope(void){
 	glPushMatrix();  // save global matrix
 
 	double offset = -11.5 * sin(angle*DEG2RAD) / 2 - (1 - angle / 35);
-	glColor4ub(10.0, 10.0, 10.0, 255);
+	if (!p) glColor4ub(10.0, 10.0, 10.0, 255);
 	glBegin(GL_TRIANGLES); // Draw 置物三腳盤
-		glColor4ub(255.0, 0.0, 0.0, 255);
+		if (!p) glColor4ub(255.0, 0.0, 0.0, 255);
 		glVertex3f(0.0, -5.0, offset);
-		glColor4ub(0.0, 255.0, 0.0, 255);
+		if (!p) glColor4ub(0.0, 255.0, 0.0, 255);
 		glVertex3f(offset*sin(120 * DEG2RAD), -5.0, offset*cos(120 * DEG2RAD));
-		glColor4ub(0.0, 0.0, 255.0, 255);
+		if (!p) glColor4ub(0.0, 0.0, 255.0, 255);
 		glVertex3f(offset*sin(240 * DEG2RAD), -5.0, offset*cos(240 * DEG2RAD));
 	glEnd();
-	glColor4ub(40, 40, 40, 255);
+	if (!p) glColor4ub(40, 40, 40, 255);
 
 	glPopMatrix(); // restore global matrix
 	/**------------------ Draw 腳架 END  --------------------**/
@@ -398,13 +405,30 @@ void Display(void)
 	CameraView(noLightMode);
 
 	if (noLightMode){
-		DrawSun();
-		DrawTelescope();//畫望遠鏡
+		glDisable(GL_LIGHTING);
+		if (polygonoffset){
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(.5, .5);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glColor3f(0.35f, 0.35f, 0.35f);
+			DrawTelescope(polygonoffset);//畫望遠鏡
+			glDisable(GL_POLYGON_OFFSET_FILL);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			polygonoffset = false;
+			DrawTelescope(polygonoffset);//畫望遠鏡
+			DrawSun();
+			polygonoffset = true;
+		}
+		else{
+			DrawSun();
+			DrawTelescope(polygonoffset);//畫望遠鏡
+		}
 		DrawGround();	//畫地板格線
 	}
 	else{
 		DrawSun();
-		DrawTelescope();//畫望遠鏡
+		DrawTelescope(false);//畫望遠鏡
 		//// Move light under floor to light the "reflected" world
 		glLightfv(GL_LIGHT1, GL_POSITION, fLightPosMirror);
 		glPushMatrix();
@@ -412,7 +436,7 @@ void Display(void)
 				glScalef(1.0f, -1.0f, 1.0f);
 				glTranslated(0, 22.5, 0);
 				DrawSun();		 //畫地板反光的太陽
-				DrawTelescope(); //畫地板反光的望遠鏡
+				DrawTelescope(false); //畫地板反光的望遠鏡
 			glFrontFace(GL_CCW);
 		glPopMatrix();
 		DrawGround();												
@@ -427,14 +451,14 @@ void Display(void)
 }
 
 void showInfo(){
+	glDisable(GL_LIGHTING);
 	glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸，改變座標系對應至畫面
 	glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸，改變座標系對應至畫面
 	glTranslated(0, 0, -distance);
 
 	glTranslated(-15.58, 10.9, 0);
-//	sprintf(mss, "Motor Speed: %d = %d + %d", accumlateX, rot_y, record_y);
 	sprintf(mss, "Motor Speed: %.2f", moveSpeed);
-	printText(mss, 0.0, 0.6, 0.0);
+	printText(mss, 0.0, 0.7, 0.0);
 
 	glTranslated(0.0, -1, 0);
 	// 修正顯示的赤經成實際的赤經格式
@@ -446,7 +470,7 @@ void showInfo(){
 	RA_s = (rRA - RA_h * 15 - RA_m / 4) * 15;
 
 	sprintf(mss, "RA  : %.2dh %.2dm %.2ds", RA_h, RA_m, RA_s);
-	printText(mss, 0.0, 0.6, 0.0);
+	printText(mss, 0.0, 0.7, 0.0);
 
 	glTranslated(0.0, -1, 0);
 	// 修正顯示的赤緯成實際的赤緯
@@ -460,19 +484,16 @@ void showInfo(){
 	Dec_s = (int)((realDec - Dec_d) * 3600) - Dec_m * 60;
 
 	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
-	printText(mss, 0.0, 0.6, 0.0);
+	printText(mss, 0.0, 0.7, 0.0);
+
+	if(!noLightMode) glEnable(GL_LIGHTING);
 }
 
 void printText(char* str, float r, float g, float b){
 	glColor3f(r, g, b);     //set font color
 	glRasterPos2i(0, 0);    //set font start position
-
-	//glDisable(GL_LIGHTING);
-
 	for (unsigned i = 0; i<strlen(str); i++)		
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
-
-	//glEnable(GL_LIGHTING);
 }
 
 void updateRA_Dec(){
@@ -499,30 +520,33 @@ void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float 
 	}
 	else
 	{
-		glColor4ub(r + 10, g + 10, b + 10, 255);
+		if (!polygonoffset) glColor4ub(r + 10, g + 10, b + 10, 255);
 		glPushMatrix();
-			glScaled(sX, sY, sZ);
+		glScaled(sX, sY, sZ);
+			if (polygonoffset)  glutSolidCube(0.99);
 			glutWireCube(1.0);
 		glPopMatrix();
 
 		// 畫網格
-		for (GLfloat i = 0; i < sX; i += 0.5){
-			glPushMatrix();
+		if (!polygonoffset){
+			for (GLfloat i = 0; i < sX; i += 0.5){
+				glPushMatrix();
 				glScaled(i, sY, sZ);
 				glutWireCube(1.0);
-			glPopMatrix();
-		}
-		for (GLfloat i = 0; i < sY; i += 0.5){
-			glPushMatrix();
+				glPopMatrix();
+			}
+			for (GLfloat i = 0; i < sY; i += 0.5){
+				glPushMatrix();
 				glScaled(sX, i, sZ);
 				glutWireCube(1.0);
-			glPopMatrix();
-		}
-		for (GLfloat i = 0; i < sZ; i += 0.5){
-			glPushMatrix();
+				glPopMatrix();
+			}
+			for (GLfloat i = 0; i < sZ; i += 0.5){
+				glPushMatrix();
 				glScaled(sX, sY, i);
 				glutWireCube(1.0);
-			glPopMatrix();
+				glPopMatrix();
+			}
 		}
 	}
 }
@@ -570,62 +594,80 @@ void myKeys(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 'w':
-	case 'W':
-		mykey[0] = true;
-		break;
-	case 's':
-	case 'S':
-		mykey[1] = true;
-		break;
-	case 'a':
-	case 'A':
-		mykey[2] = true;
-		break;
-	case 'd':
-	case 'D':
-		mykey[3] = true;
-		break;
-	case '+':
-		if (moveSpeed < 9.95) moveSpeed += 0.05;
-		break;
-	case '-':
-		if (moveSpeed > 0.06) moveSpeed -= 0.05;
-		break;
-	case ']':
-		if (angle < 35) angle++;
-		break;
-	case '[':
-		if (angle > 0) angle--;
-		break;
-	case 'c':
-	case 'C':
-		goCrazy(35-angle);
-		break;
-	case 'l':
-	case 'L':
-		noLightMode = !noLightMode;
-		noLightMode ? glDisable(GL_FOG) : glEnable(GL_FOG);
-		break;
-	case 'g':
-	case 'G':
-		target_Dec = sun_Dec;
-		target_RA = sun_RA;
-		GOTO(0);
-		break;
-	case 'p':
-	case 'P':
-		target_Dec = 0.0;
-		target_RA = 0.0;
-		GOTO(0);
-		break;
-	case 27: // Esc
-		glDisable(GL_LIGHT1);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-		glutDestroyWindow(WinNumber);
-		exit(0);
-		break;
+		case 'k':
+		case 'K':
+			antiAlias = !antiAlias;
+			if (antiAlias){
+				glEnable(GL_POINT_SMOOTH);
+				glEnable(GL_LINE_SMOOTH);
+				glEnable(GL_POLYGON_SMOOTH);
+			}
+			else{
+				glDisable(GL_POINT_SMOOTH);
+				glDisable(GL_LINE_SMOOTH);
+				glDisable(GL_POLYGON_SMOOTH);
+			}
+			break;
+		case 'j':
+		case 'J':
+			polygonoffset = !polygonoffset;
+			break;
+		case 'w':
+		case 'W':
+			mykey[0] = true;
+			break;
+		case 's':
+		case 'S':
+			mykey[1] = true;
+			break;
+		case 'a':
+		case 'A':
+			mykey[2] = true;
+			break;
+		case 'd':
+		case 'D':
+			mykey[3] = true;
+			break;
+		case '+':
+			if (moveSpeed < 9.95) moveSpeed += 0.05;
+			break;
+		case '-':
+			if (moveSpeed > 0.06) moveSpeed -= 0.05;
+			break;
+		case ']':
+			if (angle < 35) angle++;
+			break;
+		case '[':
+			if (angle > 0) angle--;
+			break;
+		case 'c':
+		case 'C':
+			goCrazy(35-angle);
+			break;
+		case 'l':
+		case 'L':
+			noLightMode = !noLightMode;
+			noLightMode ? glDisable(GL_FOG) : glEnable(GL_FOG);
+			break;
+		case 'g':
+		case 'G':
+			target_Dec = sun_Dec;
+			target_RA = sun_RA;
+			GOTO(0);
+			break;
+		case 'p':
+		case 'P':
+			target_Dec = 0.0;
+			target_RA = 0.0;
+			GOTO(0);
+			break;
+		case 27: // Esc
+			glDisable(GL_LIGHT1);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_DEPTH_TEST);
+			glutDestroyWindow(WinNumber);
+			exit(0);
+			break;
 	}
 	glutPostRedisplay();
 }
@@ -655,7 +697,7 @@ void myKeysUp(unsigned char key, int x, int y){
 // Respond to arrow keys by moving the camera frame of reference
 void SpecialKeys(int key, int x, int y)
 {
-	if (key == GLUT_KEY_UP)
+	if (key == GLUT_KEY_UP && distance < 10)
 		distance += 1;
 
 	if (key == GLUT_KEY_DOWN)
@@ -741,9 +783,19 @@ void SetupRC()
 	glEnable(GL_BLEND);
 	glEnable(GL_COLOR_MATERIAL);	// Enable color tracking
 
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+	//glEnable(GL_MULTISAMPLE);
+
 	glShadeModel(GL_SMOOTH);
-	glEnable(GL_MULTISAMPLE);
+	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	/* Antialias */
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
+
+
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 	// Setup Fog parameters
 	glEnable(GL_FOG);	// Turn Fog on
