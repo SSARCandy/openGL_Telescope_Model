@@ -90,6 +90,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lib\GLee.c" />
+    <ClCompile Include="lib\glm.cpp" />
     <ClCompile Include="lib\gltools.cpp" />
     <ClCompile Include="lib\math3d.cpp" />
     <ClCompile Include="Main.cpp" />
