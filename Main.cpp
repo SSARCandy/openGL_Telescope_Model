@@ -30,10 +30,10 @@ int			rot_y				= 0;
 int			record_x			= 0;                       //紀錄上一次旋轉的角度x
 int			record_y			= 0;                       //紀錄上一次旋轉的角度y
 
-float		distance			= -10;                     //在平移矩陣(glTranslatef();)中使用
+float		distance			= -30;                     //在平移矩陣(glTranslatef();)中使用
 float		fLightPos[]			= { 20, 20, 20, 1.0f };    //光源的位置
 float		fLightPosMirror[]   = { 20, -20, 20, 1.0f };   //倒影光源的位置
-float		fViewingLightPos[]  = { 0, 4, 0, 1.0f };    
+float		fViewingLightPos[]  = { 0, 0, 0, 1.0f };    
 
 
 GLFrame     sun;
@@ -46,8 +46,9 @@ float		target_RA			= 0.0;					   //GOTO-目的地RA
 float		target_Dec			= 0.0;					   //GOTO-目的地Dec
 double		angle				= 35;					   //角架張角 MAX=35, min=0
 bool		mykey[6]			= { false };			   //記錄按鍵按下狀態
-bool		noLightMode			= false;				       //Wire/Shading Mode
-bool        polygonoffset		= true;				   //polygonoffset is on/off
+bool		noLightMode			= false;				   //Wire/Shading Mode
+bool		FlashLight			= true;				       //Flashlight on/off
+bool        polygonoffset		= true;				       //polygonoffset is on/off
 bool		antiAlias			= true;					   //是否開啟反鋸齒
 
 const float HammerR				= 1.8;
@@ -99,6 +100,7 @@ int main()
   L      | Shading on/off      (光源)  \n\
   K      | Antialias on/off    (反鋸齒)\n\
   J      | PolygonOffset on/off(實心)  \n\
+  H      | Flashlight on/off   (手電筒)\n\
   Esc    | 關閉程式                    \n\
 |---------------Setting---------------|\n\n\
    政大天文社、政大資訊科學系 許書軒");
@@ -385,9 +387,10 @@ void DrawFlashlight(void){
 	// 畫光源(手電筒)
 	if (!noLightMode){
 		glPushMatrix();
-			fViewingLightPos[0] = flashlight.GetOriginX();
-			fViewingLightPos[1] = flashlight.GetOriginY();
-			fViewingLightPos[2] = flashlight.GetOriginZ();
+			//fViewingLightPos[0] = flashlight.GetOriginX();
+			//fViewingLightPos[1] = flashlight.GetOriginY();
+			//fViewingLightPos[2] = flashlight.GetOriginZ();
+			//fViewingLightPos[3] = 1.0f;
 
 			flashlight.ApplyActorTransform();
 			glColor4ub(200, 200, 0, 255);
@@ -404,7 +407,6 @@ void CameraView(bool noLightMode){
 		if (-accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD &&
 			accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD + 180){
 			glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
-///			flashlight.RotateLocal((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
 		}
 		else{
 			rot_y = 0;
@@ -413,11 +415,8 @@ void CameraView(bool noLightMode){
 			else
 				record_y = asin(11.2 / (30 - distance)) / DEG2RAD + 180;
 			glRotatef(record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
-	//		flashlight.RotateLocal(record_y, 1.0, 0.0, 0.0);
 		}
 		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
-		//flashlight.RotateLocal((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸
-
 	}
 	else{
 		glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸
@@ -441,7 +440,6 @@ void Display(void)
 	glTranslatef(0, 0, distance);                               //沿著z軸平移
 
 	CameraView(noLightMode);
-		DrawFlashlight();
 
 	if (noLightMode){
 		glDisable(GL_LIGHTING);
@@ -466,14 +464,6 @@ void Display(void)
 		DrawGround();	//畫地板格線
 	}
 	else{
-
-		glPushMatrix();
-		//CameraView(noLightMode);
-		//glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸，改變座標系對應至畫面
-		//glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸，改變座標系對應至畫面
-
-		glPopMatrix();
-
 		DrawSun();
 		DrawTelescope(false);//畫望遠鏡
 		//// Move light under floor to light the "reflected" world
@@ -488,7 +478,6 @@ void Display(void)
 		glPopMatrix();
 		DrawGround();												
 		glLightfv(GL_LIGHT2, GL_POSITION, fLightPos);// Restore correct lighting and draw the world correctly
-
 	}
 
 	glPushMatrix();// save global matrix
@@ -509,10 +498,10 @@ void Display(void)
 					.05, .05, .05, 1.0,
 					45.0);
 	glPopMatrix(); // restore global matrix
+		DrawFlashlight();
 
 	glPushMatrix();// save global matrix
 		showInfo();// 在螢幕上寫字
-
 	glPopMatrix(); // restore global matrix
 
 	glutSwapBuffers();
@@ -551,7 +540,8 @@ void showInfo(){
 	Dec_m = (int)((realDec - Dec_d) * 60);
 	Dec_s = (int)((realDec - Dec_d) * 3600) - Dec_m * 60;
 
-	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
+//	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
+	sprintf(mss, "Dec: %.0f* %.2f' %.2f  %.2f", fViewingLightPos[0], fViewingLightPos[1], fViewingLightPos[2], fViewingLightPos[3]);
 	printText(mss, 0.0, 0.7, 0.0);
 
 
@@ -673,6 +663,11 @@ void myKeys(unsigned char key, int x, int y)
 		case 'X':
 			distance -= 1;
 			break;
+		case 'h':
+		case 'H':
+			FlashLight = !FlashLight;
+			FlashLight ? glEnable(GL_LIGHT1) : glDisable(GL_LIGHT1);
+			break;
 		case 'k':
 		case 'K':
 			antiAlias = !antiAlias;
@@ -776,18 +771,30 @@ void myKeysUp(unsigned char key, int x, int y){
 // Respond to arrow keys by moving the camera frame of reference
 void SpecialKeys(int key, int x, int y)
 {
-	if (key == GLUT_KEY_UP)
+	if (key == GLUT_KEY_UP){
+		fViewingLightPos[0] += 0.2;
 		flashlight.MoveForward(0.2);
-	if (key == GLUT_KEY_DOWN)
+	}
+	if (key == GLUT_KEY_DOWN){
+		fViewingLightPos[0] -= 0.2;
 		flashlight.MoveForward(-0.2);
-	if (key == GLUT_KEY_LEFT)
+	}
+	if (key == GLUT_KEY_LEFT){
+		fViewingLightPos[1] += 0.2;
 		flashlight.MoveRight(0.2);
-	if (key == GLUT_KEY_RIGHT)
+	}
+	if (key == GLUT_KEY_RIGHT){
+		fViewingLightPos[1] -= 0.2;
 		flashlight.MoveRight(-0.2);
-	if (key == GLUT_KEY_PAGE_UP)
+	}
+	if (key == GLUT_KEY_PAGE_UP){
+		fViewingLightPos[2] += 0.2;
 		flashlight.MoveUp(0.2);
-	if (key == GLUT_KEY_PAGE_DOWN)
+	}
+	if (key == GLUT_KEY_PAGE_DOWN){
+		fViewingLightPos[2] -= 0.2;
 		flashlight.MoveUp(-0.2);
+	}
 
 	// Refresh the Window
 	glutPostRedisplay();
@@ -834,29 +841,33 @@ void MotionMouse(int x, int y)
 
 void SetLightSource()
 {
-	float light_Ka1[] = { .35, .35, .35, 1.0 };
-	float light_Kd1[] = { 1.0, 1.0, 1.0, 1.0 };
-	float light_Ks1[] = { 1.0, 1.0, 1.0, 1.0 };
+	float light_Ka1[] = { 0, 0, 0, 1.0 };
+	float light_Kd1[] = { 1.0, 1.0, .50, 1.0 };
+	float light_Ks1[] = { 1.0, 1.0, .50, 1.0 };
 
-	float light_Ka2[] = { .10, .10, .10, 1.0 };
+	float light_Ka2[] = { .50, .50, .50, 1.0 };
 	float light_Kd2[] = { .50, .50, .50, 1.0 };
 	float light_Ks2[] = { .5, .5, .5, 1.0 };
 
 	glEnable(GL_LIGHTING);                            //開燈
 	// 設定發光體的光源的特性
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_Ka1);      //環境光(Ambient Light)
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_Kd1);      //散射光(Diffuse Light)
+	glLightfv(GL_LIGHT1, GL_SPECULAR, light_Ks1);     //反射光(Specular Light)
+	glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);     //光的座標
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.02);
+
 	glLightfv(GL_LIGHT2, GL_AMBIENT, light_Ka2);      //環境光(Ambient Light)
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, light_Kd2);      //散射光(Diffuse Light)
 	glLightfv(GL_LIGHT2, GL_SPECULAR, light_Ks2);     //反射光(Specular Light)
 	glLightfv(GL_LIGHT2, GL_POSITION, fLightPos);     //光的座標
 
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light_Ka1);      //環境光(Ambient Light)
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_Kd1);      //散射光(Diffuse Light)
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light_Ks1);     //反射光(Specular Light)
-	glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);     //光的座標
-
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHT2);
 	glEnable(GL_DEPTH_TEST);                               //啟動深度測試
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_RESCALE_NORMAL);
+
 }
 
 void SetMaterial(GLfloat Ka_r, GLfloat Ka_g, GLfloat Ka_b, GLfloat Ka_a,
@@ -895,7 +906,6 @@ void SetupRC()
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_POLYGON_SMOOTH);
-
 
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
