@@ -1,5 +1,5 @@
 #Telescope Model
-###A simple 2D game implement with glut tool(openGL)
+###A simple Telescope(with Equatorial) Simulator
 
 ---
 
