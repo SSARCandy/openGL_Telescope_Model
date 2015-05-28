@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>E21A2405-159A-4478-91C5-10C31606FBAA</string>
+	<key>IDESourceControlProjectName</key>
+	<string>telescope</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>CEB4231FF340EC07619E4731D4D51220D86D2134</key>
+		<string>https://github.com/SSARCandy/openGL_Telescope_Model.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Xcode/telescope/telescope.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>CEB4231FF340EC07619E4731D4D51220D86D2134</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/SSARCandy/openGL_Telescope_Model.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>CEB4231FF340EC07619E4731D4D51220D86D2134</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>CEB4231FF340EC07619E4731D4D51220D86D2134</string>
+			<key>IDESourceControlWCCName</key>
+			<string>openGL_Telescope_Model</string>
+		</dict>
+	</array>
+</dict>
+</plist>

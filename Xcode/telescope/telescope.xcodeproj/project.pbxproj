@@ -1,0 +1,312 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BB3E030F1B171F40005D640B /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3E030D1B171F40005D640B /* GLUT.framework */; };
+		BB3E03101B171F40005D640B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3E030E1B171F40005D640B /* OpenGL.framework */; };
+		BB3E031B1B172B95005D640B /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3E031A1B172B95005D640B /* Carbon.framework */; };
+		BB3E03301B177FA9005D640B /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = BB3E031D1B177FA9005D640B /* GLee.c */; };
+		BB3E03311B177FA9005D640B /* glm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB3E03211B177FA9005D640B /* glm.cpp */; };
+		BB3E03321B177FA9005D640B /* gltools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB3E03231B177FA9005D640B /* gltools.cpp */; };
+		BB3E03331B177FA9005D640B /* math3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB3E03251B177FA9005D640B /* math3d.cpp */; };
+		BB3E03341B177FA9005D640B /* TriangleMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB3E03291B177FA9005D640B /* TriangleMesh.cpp */; };
+		BB3E03351B177FA9005D640B /* VBOMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB3E032B1B177FA9005D640B /* VBOMesh.cpp */; };
+		BB3E03361B177FA9005D640B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB3E032E1B177FA9005D640B /* main.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB3E02E91B171ED7005D640B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BB3E02EB1B171ED7005D640B /* telescope */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = telescope; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB3E030D1B171F40005D640B /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		BB3E030E1B171F40005D640B /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		BB3E031A1B172B95005D640B /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		BB3E031D1B177FA9005D640B /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
+		BB3E031E1B177FA9005D640B /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
+		BB3E031F1B177FA9005D640B /* glFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glFrame.h; sourceTree = "<group>"; };
+		BB3E03201B177FA9005D640B /* glfrustum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glfrustum.h; sourceTree = "<group>"; };
+		BB3E03211B177FA9005D640B /* glm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glm.cpp; sourceTree = "<group>"; };
+		BB3E03221B177FA9005D640B /* glm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glm.h; sourceTree = "<group>"; };
+		BB3E03231B177FA9005D640B /* gltools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gltools.cpp; sourceTree = "<group>"; };
+		BB3E03241B177FA9005D640B /* gltools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gltools.h; sourceTree = "<group>"; };
+		BB3E03251B177FA9005D640B /* math3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = math3d.cpp; sourceTree = "<group>"; };
+		BB3E03261B177FA9005D640B /* math3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = math3d.h; sourceTree = "<group>"; };
+		BB3E03271B177FA9005D640B /* ReadMe.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		BB3E03281B177FA9005D640B /* stopwatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stopwatch.h; sourceTree = "<group>"; };
+		BB3E03291B177FA9005D640B /* TriangleMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TriangleMesh.cpp; sourceTree = "<group>"; };
+		BB3E032A1B177FA9005D640B /* TriangleMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriangleMesh.h; sourceTree = "<group>"; };
+		BB3E032B1B177FA9005D640B /* VBOMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VBOMesh.cpp; sourceTree = "<group>"; };
+		BB3E032C1B177FA9005D640B /* VBOMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMesh.h; sourceTree = "<group>"; };
+		BB3E032D1B177FA9005D640B /* wglext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wglext.h; sourceTree = "<group>"; };
+		BB3E032E1B177FA9005D640B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = telescope/main.cpp; sourceTree = "<group>"; };
+		BB3E032F1B177FA9005D640B /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = telescope/main.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BB3E02E81B171ED7005D640B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB3E031B1B172B95005D640B /* Carbon.framework in Frameworks */,
+				BB3E030F1B171F40005D640B /* GLUT.framework in Frameworks */,
+				BB3E03101B171F40005D640B /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BB3E02E21B171ED7005D640B = {
+			isa = PBXGroup;
+			children = (
+				BB3E031A1B172B95005D640B /* Carbon.framework */,
+				BB3E030D1B171F40005D640B /* GLUT.framework */,
+				BB3E030E1B171F40005D640B /* OpenGL.framework */,
+				BB3E02ED1B171ED7005D640B /* telescope */,
+				BB3E02EC1B171ED7005D640B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BB3E02EC1B171ED7005D640B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB3E02EB1B171ED7005D640B /* telescope */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BB3E02ED1B171ED7005D640B /* telescope */ = {
+			isa = PBXGroup;
+			children = (
+				BB3E031C1B177FA9005D640B /* lib */,
+				BB3E032E1B177FA9005D640B /* main.cpp */,
+				BB3E032F1B177FA9005D640B /* main.h */,
+			);
+			path = telescope;
+			sourceTree = "<group>";
+		};
+		BB3E031C1B177FA9005D640B /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				BB3E031D1B177FA9005D640B /* GLee.c */,
+				BB3E031E1B177FA9005D640B /* GLee.h */,
+				BB3E031F1B177FA9005D640B /* glFrame.h */,
+				BB3E03201B177FA9005D640B /* glfrustum.h */,
+				BB3E03211B177FA9005D640B /* glm.cpp */,
+				BB3E03221B177FA9005D640B /* glm.h */,
+				BB3E03231B177FA9005D640B /* gltools.cpp */,
+				BB3E03241B177FA9005D640B /* gltools.h */,
+				BB3E03251B177FA9005D640B /* math3d.cpp */,
+				BB3E03261B177FA9005D640B /* math3d.h */,
+				BB3E03271B177FA9005D640B /* ReadMe.txt */,
+				BB3E03281B177FA9005D640B /* stopwatch.h */,
+				BB3E03291B177FA9005D640B /* TriangleMesh.cpp */,
+				BB3E032A1B177FA9005D640B /* TriangleMesh.h */,
+				BB3E032B1B177FA9005D640B /* VBOMesh.cpp */,
+				BB3E032C1B177FA9005D640B /* VBOMesh.h */,
+				BB3E032D1B177FA9005D640B /* wglext.h */,
+			);
+			name = lib;
+			path = telescope/lib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BB3E02EA1B171ED7005D640B /* telescope */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB3E02F21B171ED7005D640B /* Build configuration list for PBXNativeTarget "telescope" */;
+			buildPhases = (
+				BB3E02E71B171ED7005D640B /* Sources */,
+				BB3E02E81B171ED7005D640B /* Frameworks */,
+				BB3E02E91B171ED7005D640B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = telescope;
+			productName = telescope;
+			productReference = BB3E02EB1B171ED7005D640B /* telescope */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BB3E02E31B171ED7005D640B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = SSARCandy;
+				TargetAttributes = {
+					BB3E02EA1B171ED7005D640B = {
+						CreatedOnToolsVersion = 6.3.2;
+					};
+				};
+			};
+			buildConfigurationList = BB3E02E61B171ED7005D640B /* Build configuration list for PBXProject "telescope" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = BB3E02E21B171ED7005D640B;
+			productRefGroup = BB3E02EC1B171ED7005D640B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BB3E02EA1B171ED7005D640B /* telescope */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BB3E02E71B171ED7005D640B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB3E03351B177FA9005D640B /* VBOMesh.cpp in Sources */,
+				BB3E03331B177FA9005D640B /* math3d.cpp in Sources */,
+				BB3E03321B177FA9005D640B /* gltools.cpp in Sources */,
+				BB3E03361B177FA9005D640B /* main.cpp in Sources */,
+				BB3E03311B177FA9005D640B /* glm.cpp in Sources */,
+				BB3E03301B177FA9005D640B /* GLee.c in Sources */,
+				BB3E03341B177FA9005D640B /* TriangleMesh.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BB3E02F01B171ED7005D640B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		BB3E02F11B171ED7005D640B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		BB3E02F31B171ED7005D640B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		BB3E02F41B171ED7005D640B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BB3E02E61B171ED7005D640B /* Build configuration list for PBXProject "telescope" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB3E02F01B171ED7005D640B /* Debug */,
+				BB3E02F11B171ED7005D640B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB3E02F21B171ED7005D640B /* Build configuration list for PBXNativeTarget "telescope" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB3E02F31B171ED7005D640B /* Debug */,
+				BB3E02F41B171ED7005D640B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BB3E02E31B171ED7005D640B /* Project object */;
+}
