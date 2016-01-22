@@ -3,7 +3,19 @@
 
 ---
 
-###MAC OSX
+### Build Code
+
+Require [**CMake**](https://cmake.org/) (3.0+) 
+
+- Use terminal
+
+	```bash
+	~$ cmake CMakeLists.txt
+	~$ make 
+	~$ ./Telescope
+	```
+- Use **XCode** or **Visual Studio**
+  - cmake-gui is easier to configure with these IDEs
 
 
 
