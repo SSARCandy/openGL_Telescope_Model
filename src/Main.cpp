@@ -10,46 +10,46 @@
 #include <stdlib.h>
 //#include <string>
 //#include <GL\glut.h>
-#include "lib\gltools.h"
-#include "lib\math3d.h"
-#include "lib\glFrame.h"
-#include "lib\glm.h"
+#include "..\lib\gltools.h"
+#include "..\lib\math3d.h"
+#include "..\lib\glFrame.h"
+#include "..\lib\glm.h"
 
 GLMmodel *m;
 
-int			WinNumber			= NULL;                    //¥Î¨Ó©ñ¸mµøµ¡¥N½X
-const float DEG2RAD				= 3.14159 / 180.0;         //¨¤«×Âà©·«×
-const float windowWidth			= 800;				       //µøµ¡¹w³]¼e«×
-const float windowHeight		= 600;				       //µøµ¡¹w³]°ª«×
+int			WinNumber			= NULL;                    //ç”¨ä¾†æ”¾ç½®è¦–çª—ä»£ç¢¼
+const float DEG2RAD				= 3.14159 / 180.0;         //è§’åº¦è½‰å¼§åº¦
+const float windowWidth			= 800;				       //è¦–çª—é è¨­å¯¬åº¦
+const float windowHeight		= 600;				       //è¦–çª—é è¨­é«˜åº¦
   
-int			accumlateX			= 0;					   //ªuX¶b±ÛÂàªº²Ö¿n¨¤«×
-int			old_rot_x			= 0;                       //­è«ö¤U·Æ¹«®Éªºµøµ¡®y¼Ğx
-int			old_rot_y			= 0;				       //­è«ö¤U·Æ¹«®Éªºµøµ¡®y¼Ğy
-int			rot_x				= 0;                       //©ì¦²«áªº¬Û¹ï®y¼Ğ¡A¥Î³o¨M©w­n±ÛÂà´X«×
+int			accumlateX			= 0;					   //æ²¿Xè»¸æ—‹è½‰çš„ç´¯ç©è§’åº¦
+int			old_rot_x			= 0;                       //å‰›æŒ‰ä¸‹æ»‘é¼ æ™‚çš„è¦–çª—åº§æ¨™x
+int			old_rot_y			= 0;				       //å‰›æŒ‰ä¸‹æ»‘é¼ æ™‚çš„è¦–çª—åº§æ¨™y
+int			rot_x				= 0;                       //æ‹–æ›³å¾Œçš„ç›¸å°åº§æ¨™ï¼Œç”¨é€™æ±ºå®šè¦æ—‹è½‰å¹¾åº¦
 int			rot_y				= 0;
-int			record_x			= 0;                       //¬ö¿ı¤W¤@¦¸±ÛÂàªº¨¤«×x
-int			record_y			= 0;                       //¬ö¿ı¤W¤@¦¸±ÛÂàªº¨¤«×y
+int			record_x			= 0;                       //ç´€éŒ„ä¸Šä¸€æ¬¡æ—‹è½‰çš„è§’åº¦x
+int			record_y			= 0;                       //ç´€éŒ„ä¸Šä¸€æ¬¡æ—‹è½‰çš„è§’åº¦y
 
-float		distance			= -30;                     //¦b¥­²¾¯x°}(glTranslatef();)¤¤¨Ï¥Î
-float		fLightPos[]			= { 20, 20, 20, 1.0f };    //¥ú·½ªº¦ì¸m
-float		fLightPosMirror[]   = { 20, -20, 20, 1.0f };   //­Ë¼v¥ú·½ªº¦ì¸m
+float		distance			= -30;                     //åœ¨å¹³ç§»çŸ©é™£(glTranslatef();)ä¸­ä½¿ç”¨
+float		fLightPos[]			= { 20, 20, 20, 1.0f };    //å…‰æºçš„ä½ç½®
+float		fLightPosMirror[]   = { 20, -20, 20, 1.0f };   //å€’å½±å…‰æºçš„ä½ç½®
 float		fViewingLightPos[]  = { 0, 0, 0, 1.0f };    
 
 
 GLFrame     sun;
 GLFrame     flashlight;
-char		mss[50];									   //©ñ¦r¦ê
-double		RA					= 0.0;					   //¨ª¸g
-double		Dec					= -90.0;					   //¨ª½n
-double		moveSpeed			= 0.2;			  		   //°¨¹F²¾°Ê³t«×
-float		target_RA			= 0.0;					   //GOTO-¥Øªº¦aRA
-float		target_Dec			= 0.0;					   //GOTO-¥Øªº¦aDec
-double		angle				= 35;					   //¨¤¬[±i¨¤ MAX=35, min=0
-bool		mykey[6]			= { false };			   //°O¿ı«öÁä«ö¤Uª¬ºA
+char		mss[50];									   //æ”¾å­—ä¸²
+double		RA					= 0.0;					   //èµ¤ç¶“
+double		Dec					= -90.0;					   //èµ¤ç·¯
+double		moveSpeed			= 0.2;			  		   //é¦¬é”ç§»å‹•é€Ÿåº¦
+float		target_RA			= 0.0;					   //GOTO-ç›®çš„åœ°RA
+float		target_Dec			= 0.0;					   //GOTO-ç›®çš„åœ°Dec
+double		angle				= 35;					   //è§’æ¶å¼µè§’ MAX=35, min=0
+bool		mykey[6]			= { false };			   //è¨˜éŒ„æŒ‰éµæŒ‰ä¸‹ç‹€æ…‹
 bool		noLightMode			= false;				   //Wire/Shading Mode
 bool		FlashLight			= true;				       //Flashlight on/off
 bool        polygonoffset		= true;				       //polygonoffset is on/off
-bool		antiAlias			= true;					   //¬O§_¶}±Ò¤Ï¿÷¾¦
+bool		antiAlias			= true;					   //æ˜¯å¦é–‹å•Ÿåé‹¸é½’
 
 const float HammerR				= 1.8;
 const float HammerThick			= 0.7;
@@ -57,57 +57,56 @@ const int   Slice				= 24;
 const float sun_RA				= 42.7;
 const float sun_Dec				= 156.0;
 
-void SetLightSource(void);							  //³]©w¥ú·½Äİ©Ê
+void SetLightSource(void);							  //è¨­å®šå…‰æºå±¬æ€§
 void SetMaterial(GLfloat, GLfloat, GLfloat, GLfloat,  // Ka RGBA
 				 GLfloat, GLfloat, GLfloat, GLfloat,  // Kd RGBA
 			  	 GLfloat, GLfloat, GLfloat, GLfloat,  // Ks RGBA
 				 GLfloat, GLfloat, GLfloat, GLfloat,  // Ke RGBA
 				 GLfloat);						      // Se
 void SetupRC();
-void WindowSize(int, int);							  //­t³dµøµ¡¤ÎÃ¸¹Ï¤º®eªº¤ñ¨Ò
-void myKeys(unsigned char, int, int);				  //Àò¨úÁä½L¿é¤J
-void myKeysUp(unsigned char, int, int);				  //Àò¨úÁä½L¼u°_
-void SpecialKeys(int key, int x, int y);			  //Àò¨ú¯S®íÁä¿é¤J
-void Mouse(int, int, int, int);						  //Àò¨ú·Æ¹««ö¤U©M©ñ¶}®Éªº°T®§
-void MotionMouse(int, int);							  //Àò¨ú·Æ¹««ö¤U´Á¶¡ªº°T®§
-void Display(void);									  //µe­±¨ê·s
-void showInfo();									  //Åã¥Ü°T®§©ó¿Ã¹õ¤W(¨ª¸g¡B¨ª½nµ¥)
-void printText(char*, float, float, float);           //¦L¦r
-void updateRA_Dec();								  //§ó·s¨ª¸g¨ª½n
-void DrawGround(void);								  //µe¦aªO®æ½u
-void DrawTelescope(bool);					          //µe±æ»·Ãè or ±æ»·Ãè¼v¤l
-void DrawSun(void);									  //µe¤Ó¶§	
-void drawCube(bool, float, float, float, float, float, float, float);//«È»s¤Æ Wire/Solid Cubes
+void WindowSize(int, int);							  //è² è²¬è¦–çª—åŠç¹ªåœ–å…§å®¹çš„æ¯”ä¾‹
+void myKeys(unsigned char, int, int);				  //ç²å–éµç›¤è¼¸å…¥
+void myKeysUp(unsigned char, int, int);				  //ç²å–éµç›¤å½ˆèµ·
+void SpecialKeys(int key, int x, int y);			  //ç²å–ç‰¹æ®Šéµè¼¸å…¥
+void Mouse(int, int, int, int);						  //ç²å–æ»‘é¼ æŒ‰ä¸‹å’Œæ”¾é–‹æ™‚çš„è¨Šæ¯
+void MotionMouse(int, int);							  //ç²å–æ»‘é¼ æŒ‰ä¸‹æœŸé–“çš„è¨Šæ¯
+void Display(void);									  //ç•«é¢åˆ·æ–°
+void showInfo();									  //é¡¯ç¤ºè¨Šæ¯æ–¼è¢å¹•ä¸Š(èµ¤ç¶“ã€èµ¤ç·¯ç­‰)
+void printText(char*, float, float, float);           //å°å­—
+void updateRA_Dec();								  //æ›´æ–°èµ¤ç¶“èµ¤ç·¯
+void DrawGround(void);								  //ç•«åœ°æ¿æ ¼ç·š
+void DrawTelescope(bool);					          //ç•«æœ›é é¡ or æœ›é é¡å½±å­
+void DrawSun(void);									  //ç•«å¤ªé™½	
+void drawCube(bool, float, float, float, float, float, float, float);//å®¢è£½åŒ– Wire/Solid Cubes
 
 int main()
 {
-	printf("\
-|---------------Control---------------|\n\
-  ·Æ¹«   | ©ì©Ô½Õ¾ãµø¨¤                \n\
-  Z, X   | ½Õ¾ã»·ªñ                    \n\
-  A, D   | ½Õ¾ã¨ª¸g (RA)               \n\
-  W, S   | ½Õ¾ã¨ª½n (Dec)              \n\
-  [, ]   | ½Õ¾ã¸}¬[±i¨¤                \n\
-  +, -   | ½Õ¾ã°¨¹F³t«× (Motor Speed)  \n\
-  G      | GoTo ¦Û°Ê°lÂÜ¤Ó¶§           \n\
-  P      | Park Âk¦ì¦Üªì©l¦ì¸m         \n\
-  C      | Crazy ºÆ¨g¶Ã²¾°Ê©Ò¦³¥i°ÊÃö¸`\n\
-  ¤è¦VÁä | ÂI¥ú·½¥­²¾                  \n\
-  PgUp   | ÂI¥ú·½¦V¤W                  \n\
-  PgDown | ÂI¥ú·½¦V¤U                  \n\
-|---------------Control---------------|\n\n\
-|---------------Setting---------------|\n\
-  L      | Shading on/off      (¥ú·½)  \n\
-  K      | Antialias on/off    (¤Ï¿÷¾¦)\n\
-  J      | PolygonOffset on/off(¹ê¤ß)  \n\
-  H      | Flashlight on/off   (¤â¹qµ©)\n\
-  Esc    | Ãö³¬µ{¦¡                    \n\
-|---------------Setting---------------|\n\n\
-   ¬F¤j¤Ñ¤åªÀ¡B¬F¤j¸ê°T¬ì¾Ç¨t ³\®Ñ°a");
+	printf("|---------------Control---------------|\n");
+	printf("  æ»‘é¼    | æ‹–æ‹‰èª¿æ•´è¦–è§’                \n");
+	printf("  Z, X   | èª¿æ•´é è¿‘                    \n");
+	printf("  A, D   | èª¿æ•´èµ¤ç¶“ (RA)               \n");
+	printf("  W, S   | èª¿æ•´èµ¤ç·¯ (Dec)              \n");
+	printf("  [, ]   | èª¿æ•´è…³æ¶å¼µè§’                \n");
+	printf("  +, -   | èª¿æ•´é¦¬é”é€Ÿåº¦ (Motor Speed)  \n");
+	printf("  G      | GoTo è‡ªå‹•è¿½è¹¤å¤ªé™½           \n");
+	printf("  P      | Park æ­¸ä½è‡³åˆå§‹ä½ç½®         \n");
+	printf("  C      | Crazy ç˜‹ç‹‚äº‚ç§»å‹•æ‰€æœ‰å¯å‹•é—œç¯€\n");
+	printf("  æ–¹å‘éµ | é»å…‰æºå¹³ç§»                  \n");
+	printf("  PgUp   | é»å…‰æºå‘ä¸Š                  \n");
+	printf("  PgDown | é»å…‰æºå‘ä¸‹                  \n");
+	printf("|---------------Control---------------|\n\n");
+	printf("|---------------Setting---------------|\n");
+	printf("  L      | Shading on/off      (å…‰æº)  \n");
+	printf("  K      | Antialias on/off    (åé‹¸é½’)\n");
+	printf("  J      | PolygonOffset on/off(å¯¦å¿ƒ)  \n");
+	printf("  H      | Flashlight on/off   (æ‰‹é›»ç­’)\n");
+	printf("  Esc    | é—œé–‰ç¨‹å¼                    \n");
+	printf("|---------------Setting---------------|\n\n");
+	printf("     æ”¿å¤§å¤©æ–‡ç¤¾ã€æ”¿å¤§è³‡è¨Šç§‘å­¸ç³» è¨±æ›¸è»’\n");
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
-	glutInitWindowSize(windowWidth, windowHeight);     //µøµ¡ªø¼e
-	glutInitWindowPosition(300, 150);                  //µøµ¡¥ª¤W¨¤ªº¦ì¸m
+	glutInitWindowSize(windowWidth, windowHeight);     //è¦–çª—é•·å¯¬
+	glutInitWindowPosition(300, 150);                  //è¦–çª—å·¦ä¸Šè§’çš„ä½ç½®
 	WinNumber = glutCreateWindow("Telescope Model -- SSARCandy");   
 
 	glutReshapeFunc(WindowSize);
@@ -175,7 +174,7 @@ void DrawTelescope(bool p){
 	float translateUP = 11 * cos(angle*DEG2RAD) - 11 * cos(35 * DEG2RAD);
 	glTranslated(0, translateUP, 0);
 
-	/**------------------ Draw ¨ª¹D»ö°ò®y START----------------**/
+	/**------------------ Draw èµ¤é“å„€åŸºåº§ START----------------**/
 	glPushMatrix();    // save global matrix
 		drawCube(noLightMode, 1.0, 2.3, 3.2, 2.0, 80, 0, 0);
 	glPopMatrix();     // restore global matrix
@@ -186,100 +185,100 @@ void DrawTelescope(bool p){
 		glRotated(90, 1, 0, 0);
 		gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, 6); /////////
 		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);             /////////
-		glTranslated(0, 0, 0.5);							      //©³®y
+		glTranslated(0, 0, 0.5);							      //åº•åº§
 		gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);             /////////
 	glPopMatrix();     // restore global matrix
-	/**------------------ Draw ¨ª¹D»ö°ò®y END------------------**/
+	/**------------------ Draw èµ¤é“å„€åŸºåº§ END------------------**/
 
-	/**------------------ Draw ¨ª¹D»ö·¥¶b(¨ª¸g¶b) START----------------**/
+	/**------------------ Draw èµ¤é“å„€æ¥µè»¸(èµ¤ç¶“è»¸) START----------------**/
 	glPushMatrix();    // save global matrix
 		if (!p) glColor4ub(90, 10, 10, 255);
 		glTranslated(0, 2, 0);
 		glRotated(66.5, 0, 0, 1);
 		glRotated(90, 1, 0, 0);
 		glTranslated(0, 0, -1.5);
-		gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.5f, Slice, 16); // ¨ª¸g¶b
+		gluCylinder(gluNewQuadric(), 1.2f, 1.2f, 3.5f, Slice, 16); // èµ¤ç¶“è»¸
 		glTranslated(0, 0, 3.5);
-		gluDisk(gluNewQuadric(), 0, 1.2, Slice, 16);               // »\¤l
+		gluDisk(gluNewQuadric(), 0, 1.2, Slice, 16);               // è“‹å­
 
 		if (!p) glColor4ub(0, 0, 0, 255);                                 ////////////////
 		gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 0.5f, Slice, 8); ////////////////
-		glTranslated(0, 0, 0.5);								  //·¥¶b±æ»·Ãè
-		gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);               //·¥¶b±æ»·Ãè­I­±
+		glTranslated(0, 0, 0.5);								  //æ¥µè»¸æœ›é é¡
+		gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);               //æ¥µè»¸æœ›é é¡èƒŒé¢
 		glTranslated(0, 0, -4.0);                                 ////////////////
 
 		glPushMatrix();
 			if (!p) glColor4ub(0, 0, 0, 255);
-			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, 8); // ¨ª¸g¡B¨ª½n¶b¥æ±µ³B
+			gluCylinder(gluNewQuadric(), 1.21f, 1.21f, 0.5f, Slice, 8); // èµ¤ç¶“ã€èµ¤ç·¯è»¸äº¤æ¥è™•
 		glPopMatrix();
 
 		if (!p) glColor4ub(0, 0, 255, 200);
 		glTranslated(0, 0, 3.5);
-		gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, Slice, 8); // ·¥±æ»\¤l
+		gluCylinder(gluNewQuadric(), 1.2f, 0.6f, 1.0f, Slice, 8); // æ¥µæœ›è“‹å­
 		glTranslated(0, 0, 1.0);
-		gluDisk(gluNewQuadric(), 0, 0.6, Slice, 8);               // ·¥±æ»\¤l
+		gluDisk(gluNewQuadric(), 0, 0.6, Slice, 8);               // æ¥µæœ›è“‹å­
 		if (!p) glColor4ub(82, 0, 0, 255);
 	glPopMatrix();     // restore global matrix
-	/**------------------ Draw ¨ª¹D»ö·¥¶b(¨ª¸g¶b) END------------------**/
+	/**------------------ Draw èµ¤é“å„€æ¥µè»¸(èµ¤ç¶“è»¸) END------------------**/
 
-	/**------------------ Draw ¨ª¹D»ö¨ª½n¶b START----------------**/
+	/**------------------ Draw èµ¤é“å„€èµ¤ç·¯è»¸ START----------------**/
 	glPushMatrix();    // save global matrix
 		glRotated(180 - 23.5, 0, 0, 1);
 		glTranslated(3.5, -1.3, 0);
 
-		glTranslated(0, -0.5, 0); //½Õ¾ã±ÛÂà¤¤¤ßÂI
-		glRotated(RA, 1, 0, 0);   //®Ú¾Ú¨ª¸g±ÛÂà
-		glTranslated(0, 0.5, 0);  //½Õ¾ã±ÛÂà¤¤¤ßÂI
+		glTranslated(0, -0.5, 0); //èª¿æ•´æ—‹è½‰ä¸­å¿ƒé»
+		glRotated(RA, 1, 0, 0);   //æ ¹æ“šèµ¤ç¶“æ—‹è½‰
+		glTranslated(0, 0.5, 0);  //èª¿æ•´æ—‹è½‰ä¸­å¿ƒé»
 
-		glPushMatrix();    // save ¨ª¹D»ö¨ª½n¶b matrix
+		glPushMatrix();    // save èµ¤é“å„€èµ¤ç·¯è»¸ matrix
 			drawCube(noLightMode, 1.0, 2.4, 4, 2.4, 80, 0, 0);
-		glPopMatrix();     // restore ¨ª¹D»ö¨ª½n¶b matrix
+		glPopMatrix();     // restore èµ¤é“å„€èµ¤ç·¯è»¸ matrix
 
-		glPushMatrix();    // save ¨ª¹D»ö¨ª½n¶b matrix
+		glPushMatrix();    // save èµ¤é“å„€èµ¤ç·¯è»¸ matrix
 			if (!p) glColor4ub(0, 0, 0, 255);
 			glTranslated(0, -1.9, 0);
 			glRotated(90, 1, 0, 0);
 			gluCylinder(gluNewQuadric(), 1.7f, 1.7f, 0.5f, Slice, 6);  /////////
 			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);              /////////
-			glTranslated(0, 0, 0.5);								   //¸üª«¥x
+			glTranslated(0, 0, 0.5);								   //è¼‰ç‰©å°
 			gluDisk(gluNewQuadric(), 0, 1.7f, Slice, 12);              /////////
-		glPopMatrix();     // restore ¨ª¹D»ö¨ª½n¶b matrix
-	/**------------------ Draw ¨ª¹D»ö¨ª½n¶b END------------------**/
+		glPopMatrix();     // restore èµ¤é“å„€èµ¤ç·¯è»¸ matrix
+	/**------------------ Draw èµ¤é“å„€èµ¤ç·¯è»¸ END------------------**/
 
-	/**------------------ Draw ­«Áè§ı&­«Áè START----------------**/
-		glPushMatrix();    // save ¨ª¹D»ö¨ª½n¶b matrix
+	/**------------------ Draw é‡éŒ˜æ†&é‡éŒ˜ START----------------**/
+		glPushMatrix();    // save èµ¤é“å„€èµ¤ç·¯è»¸ matrix
 			if (!p) glColor4ub(70, 70, 70, 255);
 			glTranslated(0, 8, 0);
 			glRotated(90, 1, 0, 0);
 			gluCylinder(gluNewQuadric(), 0.2f, 0.2f, 6.0f, 8, 32); // HammerStick
 
 			if (!p) glColor4ub(70, 50, 50, 255);
-			glTranslated(0, 0, 1);//¥Ñ­«Áè§ı©³¨B¦V¤W²¾
+			glTranslated(0, 0, 1);//ç”±é‡éŒ˜æ†åº•æ­¥å‘ä¸Šç§»
 			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, 8); // Hammer1
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1©³­±
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1åº•é¢
 			glTranslated(0, 0, HammerThick);
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1³»­±
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer1é ‚é¢
 
 			glTranslated(0, 0, 0.5);
 			gluCylinder(gluNewQuadric(), HammerR, HammerR, HammerThick, Slice, 8); // Hammer2
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer2©³­±
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer2åº•é¢
 			glTranslated(0, 0, HammerThick);
-			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer2³»­±
-		glPopMatrix();     // restore ¨ª¹D»ö¨ª½n¶b matrix
-	/**------------------ Draw ­«Áè§ı&­«Áè END------------------**/
+			gluDisk(gluNewQuadric(), 0, HammerR, Slice, 16); // Hammer2é ‚é¢
+		glPopMatrix();     // restore èµ¤é“å„€èµ¤ç·¯è»¸ matrix
+	/**------------------ Draw é‡éŒ˜æ†&é‡éŒ˜ END------------------**/
 
-	/**------------------ Draw ¥DÃè START----------------**/
-		glPushMatrix(); // save ¨ª¹D»ö¨ª½n¶b matrix
+	/**------------------ Draw ä¸»é¡ START----------------**/
+		glPushMatrix(); // save èµ¤é“å„€èµ¤ç·¯è»¸ matrix
 			glRotated(90, 0, 1, 0);
 			glTranslated(0, -4.7, -3);
-			glTranslated(0, 0, 3);      //½Õ¾ã¿ï¤¤¤ßÂàÂI
-			glRotated(90 + Dec, 0, 1, 0); //®Ú¾Ú¨ª½n°µ±ÛÂà
-			glTranslated(0, 0, -3);     //½Õ¾ã¿ïÂà¤¤¤ßÂI
+			glTranslated(0, 0, 3);      //èª¿æ•´é¸ä¸­å¿ƒè½‰é»
+			glRotated(90 + Dec, 0, 1, 0); //æ ¹æ“šèµ¤ç·¯åšæ—‹è½‰
+			glTranslated(0, 0, -3);     //èª¿æ•´é¸è½‰ä¸­å¿ƒé»
 
 			if (!p) glColor4ub(20, 20, 20, 255);
 			//gltDrawUnitAxes();
 			gluCylinder(gluNewQuadric(), 2.2f, 2.2f, 7.0f, Slice, 16); // Telescope
-			gluDisk(gluNewQuadric(), 0.3, 2.2, Slice, 24);             // Telescope­I­±
+			gluDisk(gluNewQuadric(), 0.3, 2.2, Slice, 24);             // TelescopeèƒŒé¢
 
 			glPushMatrix();
 				glTranslated(0, 2.3, 3.3);
@@ -290,43 +289,43 @@ void DrawTelescope(bool p){
 			glPushMatrix();
 				glTranslated(0, 0, 6);
 				if (!p) glColor4ub(100, 100, 100, 100);               // Glass - Transparency
-				gluDisk(gluNewQuadric(), 0, 2.2, Slice, 16);  // Telescope¥¿­±(¥dÁÉ®æªL¦¡)
+				gluDisk(gluNewQuadric(), 0, 2.2, Slice, 16);  // Telescopeæ­£é¢(å¡è³½æ ¼æ—å¼)
 				if (!p) glColor4ub(20, 20, 20, 255);
 
 				glTranslated(0, 0, 0.5);
-				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.5f, Slice, 16); // «e¤Ï®g­±
+				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.5f, Slice, 16); // å‰åå°„é¢
 				glTranslated(0, 0, 0.5);
 				gluDisk(gluNewQuadric(), 0, 1.0, Slice, 16);
 			glPopMatrix();
 
 			glPushMatrix();
 				glTranslated(0, 0, -0.5);
-				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.6f, Slice, 8); // ¥ØÃè®y
-				gluDisk(gluNewQuadric(), 0.5, 1.0, Slice, 8);             // ¥ØÃè®y­I­±
+				gluCylinder(gluNewQuadric(), 1.0f, 1.0f, 0.6f, Slice, 8); // ç›®é¡åº§
+				gluDisk(gluNewQuadric(), 0.5, 1.0, Slice, 8);             // ç›®é¡åº§èƒŒé¢
 
 				glTranslated(0, 0, -1.0);
-				gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, Slice, 8); // ¥ØÃè
+				gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 1.0f, Slice, 8); // ç›®é¡
 				if (!p) glColor4ub(100, 100, 100, 150);						      // Glass - Transparency
-				gluDisk(gluNewQuadric(), 0, 0.5, Slice, 8);				  // ¥ØÃè­I­±
+				gluDisk(gluNewQuadric(), 0, 0.5, Slice, 8);				  // ç›®é¡èƒŒé¢
 				if (!p) glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
 			glRotated(45, 0, 0, 1);
 			glTranslated(0, -3, 0);
-			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, 8); // ´M¬PÃè
-			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // ´M¬PÃè­I­±
+			gluCylinder(gluNewQuadric(), 0.5f, 0.5f, 3.0f, Slice, 8); // å°‹æ˜Ÿé¡
+			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // å°‹æ˜Ÿé¡èƒŒé¢
 			glTranslated(0, 0, 3.0);
-			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // ´M¬PÃè¥¿­±
+			gluDisk(gluNewQuadric(), 0, 0.5, Slice, 16);               // å°‹æ˜Ÿé¡æ­£é¢
 			glTranslated(0, 0, -3.5);
-			gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, Slice, 4);  // ¥ØÃè
-			gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);                // ¥ØÃè­I­±
+			gluCylinder(gluNewQuadric(), 0.3f, 0.3f, 1.0f, Slice, 4);  // ç›®é¡
+			gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);                // ç›®é¡èƒŒé¢
 
 			glTranslated(0, 0.6, 1.5);
 			drawCube(noLightMode, 1.0, 1, 1, 1, 10, 10, 10);
-		glPopMatrix();     // restore ¨ª¹D»ö¨ª½n¶b matrix
-	/**------------------ Draw ¥DÃè END------------------**/
+		glPopMatrix();     // restore èµ¤é“å„€èµ¤ç·¯è»¸ matrix
+	/**------------------ Draw ä¸»é¡ END------------------**/
 
-	/**------------------ Draw ¸}¬[ START--------------------**/
+	/**------------------ Draw è…³æ¶ START--------------------**/
 	glPopMatrix();   // restore global matrix
 	glPushMatrix();  // save global matrix
 		glTranslated(0, -1.6, -1.0);
@@ -354,7 +353,7 @@ void DrawTelescope(bool p){
 
 	double offset = -11.5 * sin(angle*DEG2RAD) / 2 - (1 - angle / 35);
 	if (!p) glColor4ub(10.0, 10.0, 10.0, 255);
-	glBegin(GL_TRIANGLES); // Draw ¸mª«¤T¸}½L
+	glBegin(GL_TRIANGLES); // Draw ç½®ç‰©ä¸‰è…³ç›¤
 		if (!p) glColor4ub(255.0, 0.0, 0.0, 255);
 		glVertex3f(0.0, -5.0, offset);
 		if (!p) glColor4ub(0.0, 255.0, 0.0, 255);
@@ -365,14 +364,14 @@ void DrawTelescope(bool p){
 	if (!p) glColor4ub(40, 40, 40, 255);
 
 	glPopMatrix(); // restore global matrix
-	/**------------------ Draw ¸}¬[ END  --------------------**/
+	/**------------------ Draw è…³æ¶ END  --------------------**/
 
 	glPopMatrix();
 }
 
 void DrawSun(void){
 	///////////////////
-	// µe¥ú·½(¤Ó¶§)
+	// ç•«å…‰æº(å¤ªé™½)
 	glPushMatrix();
 		sun.ApplyActorTransform();
 		glDisable(GL_LIGHTING);
@@ -384,7 +383,7 @@ void DrawSun(void){
 
 void DrawFlashlight(void){
 	///////////////////
-	// µe¥ú·½(¤â¹qµ©)
+	// ç•«å…‰æº(æ‰‹é›»ç­’)
 	if (!noLightMode){
 		glPushMatrix();
 			//fViewingLightPos[0] = flashlight.GetOriginX();
@@ -406,7 +405,7 @@ void CameraView(bool noLightMode){
 		accumlateX = (float)rot_y + (float)record_y;
 		if (-accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD &&
 			accumlateX < asin(11.2 / (30 - distance)) / DEG2RAD + 180){
-			glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //¥Hx¶b·í±ÛÂà¶b
+			glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //ä»¥xè»¸ç•¶æ—‹è½‰è»¸
 		}
 		else{
 			rot_y = 0;
@@ -414,21 +413,21 @@ void CameraView(bool noLightMode){
 				record_y = -asin(11.2 / (30 - distance)) / DEG2RAD;
 			else
 				record_y = asin(11.2 / (30 - distance)) / DEG2RAD + 180;
-			glRotatef(record_y, 1.0, 0.0, 0.0);   //¥Hx¶b·í±ÛÂà¶b
+			glRotatef(record_y, 1.0, 0.0, 0.0);   //ä»¥xè»¸ç•¶æ—‹è½‰è»¸
 		}
-		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //¥Hy¶b·í±ÛÂà¶b
+		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //ä»¥yè»¸ç•¶æ—‹è½‰è»¸
 	}
 	else{
-		glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //¥Hx¶b·í±ÛÂà¶b
-		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //¥Hy¶b·í±ÛÂà¶b
+		glRotatef((float)rot_y + (float)record_y, 1.0, 0.0, 0.0);   //ä»¥xè»¸ç•¶æ—‹è½‰è»¸
+		glRotatef((float)rot_x + (float)record_x, 0.0, 1.0, 0.0);   //ä»¥yè»¸ç•¶æ—‹è½‰è»¸
 	}
 }
 
 void Display(void)
 {
-	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//®Ú¾Ú¬O§_¶}¥ú¼v¨Ó¶î­I´ºÃC¦â
+	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//æ ¹æ“šæ˜¯å¦é–‹å…‰å½±ä¾†å¡—èƒŒæ™¯é¡è‰²
 
-	updateRA_Dec(); //±±¨î RA, Dec ªº§ïÅÜ
+	updateRA_Dec(); //æ§åˆ¶ RA, Dec çš„æ”¹è®Š
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	noLightMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Shading = true/false
@@ -436,8 +435,8 @@ void Display(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	gluLookAt(0, 0, 30.0, 0, 0, 0, 0, 1, 0);                    //µø½uªº®y¼Ğ¤Î¤è¦V
-	glTranslatef(0, 0, distance);                               //ªuµÛz¶b¥­²¾
+	gluLookAt(0, 0, 30.0, 0, 0, 0, 0, 1, 0);                    //è¦–ç·šçš„åº§æ¨™åŠæ–¹å‘
+	glTranslatef(0, 0, distance);                               //æ²¿è‘—zè»¸å¹³ç§»
 
 	CameraView(noLightMode);
 
@@ -448,32 +447,32 @@ void Display(void)
 			glPolygonOffset(.5, .5);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glColor3f(0.35f, 0.35f, 0.35f);
-			DrawTelescope(polygonoffset);//µe±æ»·Ãè
+			DrawTelescope(polygonoffset);//ç•«æœ›é é¡
 			glDisable(GL_POLYGON_OFFSET_FILL);
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			polygonoffset = false;
-			DrawTelescope(polygonoffset);//µe±æ»·Ãè
+			DrawTelescope(polygonoffset);//ç•«æœ›é é¡
 			DrawSun();
 			polygonoffset = true;
 		}
 		else{
 			DrawSun();
-			DrawTelescope(polygonoffset);//µe±æ»·Ãè
+			DrawTelescope(polygonoffset);//ç•«æœ›é é¡
 		}
-		DrawGround();	//µe¦aªO®æ½u
+		DrawGround();	//ç•«åœ°æ¿æ ¼ç·š
 	}
 	else{
 		DrawSun();
-		DrawTelescope(false);//µe±æ»·Ãè
+		DrawTelescope(false);//ç•«æœ›é é¡
 		//// Move light under floor to light the "reflected" world
 		glLightfv(GL_LIGHT2, GL_POSITION, fLightPosMirror);
 		glPushMatrix();
 			glFrontFace(GL_CW);  // geometry is mirrored, swap orientation
 				glScalef(1.0f, -1.0f, 1.0f);
 				glTranslated(0, 22.5, 0);
-				DrawSun();		 //µe¦aªO¤Ï¥úªº¤Ó¶§
-				DrawTelescope(false); //µe¦aªO¤Ï¥úªº±æ»·Ãè
+				DrawSun();		 //ç•«åœ°æ¿åå…‰çš„å¤ªé™½
+				DrawTelescope(false); //ç•«åœ°æ¿åå…‰çš„æœ›é é¡
 			glFrontFace(GL_CCW);
 		glPopMatrix();
 		DrawGround();												
@@ -501,7 +500,7 @@ void Display(void)
 		DrawFlashlight();
 
 	glPushMatrix();// save global matrix
-		showInfo();// ¦b¿Ã¹õ¤W¼g¦r
+		showInfo();// åœ¨è¢å¹•ä¸Šå¯«å­—
 	glPopMatrix(); // restore global matrix
 
 	glutSwapBuffers();
@@ -509,8 +508,8 @@ void Display(void)
 
 void showInfo(){
 	glDisable(GL_LIGHTING);
-	glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //¥Hy¶b·í±ÛÂà¶b¡A§ïÅÜ®y¼Ğ¨t¹ïÀ³¦Üµe­±
-	glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //¥Hx¶b·í±ÛÂà¶b¡A§ïÅÜ®y¼Ğ¨t¹ïÀ³¦Üµe­±
+	glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //ä»¥yè»¸ç•¶æ—‹è½‰è»¸ï¼Œæ”¹è®Šåº§æ¨™ç³»å°æ‡‰è‡³ç•«é¢
+	glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //ä»¥xè»¸ç•¶æ—‹è½‰è»¸ï¼Œæ”¹è®Šåº§æ¨™ç³»å°æ‡‰è‡³ç•«é¢
 	glTranslated(0, 0, -distance);
 
 	glTranslated(-15.58, 10.9, 0);
@@ -518,7 +517,7 @@ void showInfo(){
 	printText(mss, 0.0, 0.7, 0.0);
 
 	glTranslated(0.0, -1, 0);
-	// ­×¥¿Åã¥Üªº¨ª¸g¦¨¹ê»Úªº¨ª¸g®æ¦¡
+	// ä¿®æ­£é¡¯ç¤ºçš„èµ¤ç¶“æˆå¯¦éš›çš„èµ¤ç¶“æ ¼å¼
 	float rRA;
 	int RA_h, RA_m, RA_s;
 	RA > 0 ? rRA = RA : rRA = 360 - RA;
@@ -530,7 +529,7 @@ void showInfo(){
 	printText(mss, 0.0, 0.7, 0.0);
 
 	glTranslated(0.0, -1, 0);
-	// ­×¥¿Åã¥Üªº¨ª½n¦¨¹ê»Úªº¨ª½n
+	// ä¿®æ­£é¡¯ç¤ºçš„èµ¤ç·¯æˆå¯¦éš›çš„èµ¤ç·¯
 	float realDec = Dec;
 	realDec > 0 ? realDec = 360 - realDec : realDec = -realDec;
 	if (realDec > 90 && realDec <= 270) realDec = 180 - realDec;
@@ -587,7 +586,7 @@ void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float 
 			glutWireCube(1.0);
 		glPopMatrix();
 
-		// µeºô®æ
+		// ç•«ç¶²æ ¼
 		if (!polygonoffset){
 			for (GLfloat i = 0; i < sX; i += 0.5){
 				glPushMatrix();
@@ -803,13 +802,13 @@ void SpecialKeys(int key, int x, int y)
 void WindowSize(int w, int h)
 {
 	float rate;
-	if (h == 0) h = 1;                      //ªı¤îh¬°¹s¡A¤À¥À¥i¤£¯à¬°¹s°Ú
-	glViewport(0, 0, w, h);                 //·íµøµ¡ªø¼e§ïÅÜ®É¡Aµe­±¤]¸òµÛÅÜ
-	rate = (float)w / (float)h;             //µe­±µø³¥ÅÜ¤F¡A¦ı¤º®e¤£ÅÜ§Î
+	if (h == 0) h = 1;                      //é˜»æ­¢hç‚ºé›¶ï¼Œåˆ†æ¯å¯ä¸èƒ½ç‚ºé›¶å•Š
+	glViewport(0, 0, w, h);                 //ç•¶è¦–çª—é•·å¯¬æ”¹è®Šæ™‚ï¼Œç•«é¢ä¹Ÿè·Ÿè‘—è®Š
+	rate = (float)w / (float)h;             //ç•«é¢è¦–é‡è®Šäº†ï¼Œä½†å…§å®¹ä¸è®Šå½¢
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45, rate, 1.0, 500.0);   //³zµø§ë¼v
+	gluPerspective(45, rate, 1.0, 500.0);   //é€è¦–æŠ•å½±
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -822,7 +821,7 @@ void Mouse(int button, int state, int x, int y)
 		record_x += x - old_rot_x;
 		record_y += y - old_rot_y;
 
-		rot_x = 0;   //¨S¦³Âk¹s·|¦³¤£²z·Qªºµ²ªG
+		rot_x = 0;   //æ²’æœ‰æ­¸é›¶æœƒæœ‰ä¸ç†æƒ³çš„çµæœ
 		rot_y = 0;
 	}
 	else
@@ -849,22 +848,22 @@ void SetLightSource()
 	float light_Kd2[] = { .50, .50, .50, 1.0 };
 	float light_Ks2[] = { .5, .5, .5, 1.0 };
 
-	glEnable(GL_LIGHTING);                            //¶}¿O
-	// ³]©wµo¥úÅéªº¥ú·½ªº¯S©Ê
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light_Ka1);      //Àô¹Ò¥ú(Ambient Light)
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_Kd1);      //´²®g¥ú(Diffuse Light)
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light_Ks1);     //¤Ï®g¥ú(Specular Light)
-	glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);     //¥úªº®y¼Ğ
+	glEnable(GL_LIGHTING);                            //é–‹ç‡ˆ
+	// è¨­å®šç™¼å…‰é«”çš„å…‰æºçš„ç‰¹æ€§
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_Ka1);      //ç’°å¢ƒå…‰(Ambient Light)
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_Kd1);      //æ•£å°„å…‰(Diffuse Light)
+	glLightfv(GL_LIGHT1, GL_SPECULAR, light_Ks1);     //åå°„å…‰(Specular Light)
+	glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);     //å…‰çš„åº§æ¨™
 	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.02);
 
-	glLightfv(GL_LIGHT2, GL_AMBIENT, light_Ka2);      //Àô¹Ò¥ú(Ambient Light)
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, light_Kd2);      //´²®g¥ú(Diffuse Light)
-	glLightfv(GL_LIGHT2, GL_SPECULAR, light_Ks2);     //¤Ï®g¥ú(Specular Light)
-	glLightfv(GL_LIGHT2, GL_POSITION, fLightPos);     //¥úªº®y¼Ğ
+	glLightfv(GL_LIGHT2, GL_AMBIENT, light_Ka2);      //ç’°å¢ƒå…‰(Ambient Light)
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, light_Kd2);      //æ•£å°„å…‰(Diffuse Light)
+	glLightfv(GL_LIGHT2, GL_SPECULAR, light_Ks2);     //åå°„å…‰(Specular Light)
+	glLightfv(GL_LIGHT2, GL_POSITION, fLightPos);     //å…‰çš„åº§æ¨™
 
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHT2);
-	glEnable(GL_DEPTH_TEST);                               //±Ò°Ê²`«×´ú¸Õ
+	glEnable(GL_DEPTH_TEST);                               //å•Ÿå‹•æ·±åº¦æ¸¬è©¦
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_RESCALE_NORMAL);
 
@@ -920,7 +919,7 @@ void SetupRC()
 	sun.SetOrigin(fLightPos[0], fLightPos[1], fLightPos[2]);
 	flashlight.SetOrigin(0, 10, 0);
 
-	m = glmReadOBJ("T_Rex_Base_Mesh.OBJ");
+	m = glmReadOBJ("../model/T_Rex_Base_Mesh.OBJ");
 	glmUnitize(m);
 	glmFacetNormals(m);
 	glmVertexNormals(m, 90);
