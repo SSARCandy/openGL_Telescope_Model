@@ -19,41 +19,40 @@ Require [**CMake**](https://cmake.org/) (3.0+)
 
 
 
-####操作方式：
+#### Usage
 - **Control**
 
-	```
-	滑鼠   | 拖拉調整視角                
-	Z, X   | 調整遠近                    
-	A, D   | 調整赤經 (RA)               
-	W, S   | 調整赤緯 (Dec)              
-	[, ]   | 調整腳架張角                
-	+, -   | 調整馬達速度 (Motor Speed)  
-	G      | GoTo 自動追蹤太陽           
-	P      | Park 歸位至初始位置         
-	C      | Crazy 瘋狂亂移動所有可動關節
-	方向鍵  | 點光源平移                  
-	PgUp   | 點光源向上                  
-	PgDown | 點光源向下                  
-	```
+	Key      | Descriptions              | 中文
+	---------|---------------------------|-------------
+	`Mouse`    | Drag to change view       | (拖拉調整視角)                
+	`Z`, `X`     | Zoom in/out               | (調整遠近)                    
+	`A`, `D`     | Adjust Right ascension(RA)| (調整赤經)               
+	`W`, `S`     | Adjust Declination(Dec)   | (調整赤緯)              
+	`[`, `]`     | Adjust tripod             | (調整腳架張角)                
+	`+`, `-`     | Adjust Motor Speed        | (調整馬達速度)  
+	`G`        | GoTo SUN                  | (自動追蹤太陽)           
+	`P`        | Park                      | (歸位至初始位置)         
+	`C`        | Crazy Mode                | (瘋狂亂移動所有可動關節)
+	`ArrowKey` | SpotLight translation     | (點光源平移)                  
+	`PgUp`     | SpotLight Up              | (點光源向上)
+	`PgDown`   | SpotLight Down            | (點光源向下)
+	
 
 - Setting
 
-	```
-	L      | Shading on/off      (光源)  
-	K      | Antialias on/off    (反鋸齒)
-	J      | PolygonOffset on/off(實心)  
-	H      | Flashlight on/off   (手電筒)
-	Esc    | 關閉程式                    
-	```
+	Key      | Descriptions              | 中文
+	---------|---------------------------|-------------
+	`L`      | Shading on/off       |(光源)  
+	`K`      | Antialias on/off     |(反鋸齒)
+	`J`      | PolygonOffset on/off |(實心)  
+	`H`      | Flashlight on/off    |(手電筒)
+	`Esc`    | Exit                 |(關閉程式)                    
+	
 
-####幾何物體和材質特性：
-- 金屬質感的望遠鏡
-- 塑膠粗糙恐龍
-- 大理石質地板
 
-####截圖
-![img](demo/demo1.JPG)
-![img](demo/demo4.JPG)
-![img](demo/demo3.JPG)
-![img](demo/demo2.JPG)
+
+#### Sceenshots
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo1.JPG)
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo2.JPG)
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo3.JPG)
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo4.JPG)
