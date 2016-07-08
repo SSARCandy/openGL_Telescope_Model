@@ -20,7 +20,7 @@ Require [**CMake**](https://cmake.org/) (3.0+)
 
 
 ### Usage
-- **Control**
+- Control
 
 	Key      | Descriptions              | 中文
 	---------|---------------------------|-------------
