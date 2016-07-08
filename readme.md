@@ -19,7 +19,7 @@ Require [**CMake**](https://cmake.org/) (3.0+)
 
 
 
-#### Usage
+### Usage
 - **Control**
 
 	Key      | Descriptions              | 中文
@@ -51,7 +51,7 @@ Require [**CMake**](https://cmake.org/) (3.0+)
 
 
 
-#### Sceenshots
+### Sceenshots
 ![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo1.JPG)
 ![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo2.JPG)
 ![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo3.JPG)
