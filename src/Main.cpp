@@ -10,10 +10,10 @@
 #include <stdlib.h>
 //#include <string>
 //#include <GL\glut.h>
-#include "..\lib\gltools.h"
-#include "..\lib\math3d.h"
-#include "..\lib\glFrame.h"
-#include "..\lib\glm.h"
+#include "../lib/gltools.h"
+#include "../lib/math3d.h"
+#include "../lib/glFrame.h"
+#include "../lib/glm.h"
 
 GLMmodel *m;
 

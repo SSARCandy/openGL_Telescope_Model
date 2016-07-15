@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.0)
 
 project( Telescope )
 
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/lib)
 
 add_executable( Telescope 
@@ -24,4 +28,4 @@ add_executable( Telescope
 "${PROJECT_SOURCE_DIR}/lib/wglext.h" 
 )
 
-#target_link_libraries( Telescope )
+target_link_libraries(Telescope ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})

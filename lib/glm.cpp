@@ -17,8 +17,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <GL\glut.h>
 #include "glm.h"
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 
 #define T(x) (model->triangles[(x)])
