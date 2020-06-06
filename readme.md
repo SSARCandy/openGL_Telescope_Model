@@ -1,8 +1,10 @@
 # Telescope Model
 
-A simple Telescope (with Equatorial) Simulator.
+A complete telescope (with equatorial) simulator written in OpenGL.
 
----
+![demo](./demo/demo.gif)
+
+
 
 ### Build Code
 
@@ -56,3 +58,7 @@ Key      | Descriptions              | 中文
 
 ### Sceenshots
 
+
+![img](./demo/01.png)
+![img](./demo/02.png)
+![img](./demo/03.png)
