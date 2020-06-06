@@ -2,7 +2,7 @@
 
 A complete telescope (with equatorial) simulator written in OpenGL.
 
-![demo](./demo/demo.gif)
+![demo](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/demo.gif)
 
 
 
@@ -59,6 +59,6 @@ Key      | Descriptions              | 中文
 ### Sceenshots
 
 
-![img](./demo/01.png)
-![img](./demo/02.png)
-![img](./demo/03.png)
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/01.png)
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/02.png)
+![img](https://raw.githubusercontent.com/SSARCandy/openGL_Telescope_Model/master/demo/03.png)
