@@ -10,12 +10,12 @@
 #include <stdlib.h>
 //#include <string>
 //#include <GL\glut.h>
-#include "../lib/gltools.h"
-#include "../lib/math3d.h"
-#include "../lib/glFrame.h"
-#include "../lib/glm.h"
+#include <GLTools.h>
+#include "math3d.h"
+#include "glFrame.h"
+#include "glm.h"
 
-GLMmodel *m;
+// GLMmodel *m;
 
 int			WinNumber			= NULL;                    //用來放置視窗代碼
 const float DEG2RAD				= 3.14159 / 180.0;         //角度轉弧度
@@ -79,8 +79,10 @@ void DrawTelescope(bool);					          //畫望遠鏡 or 望遠鏡影子
 void DrawSun(void);									  //畫太陽	
 void drawCube(bool, float, float, float, float, float, float, float);//客製化 Wire/Solid Cubes
 
-int main()
+int main(int argc, char *argv[])
 {
+	glutInit( & argc, argv );
+
 	printf("|---------------Control---------------|\n");
 	printf("  滑鼠   | 拖拉調整視角                \n");
 	printf("  Z, X   | 調整遠近                    \n");
@@ -490,7 +492,7 @@ void Display(void)
 					.5, .5, .5, 1.0,
 					.0, .0, .0, 1.0,
 					0.0);
-		glmDraw(m, GLM_SMOOTH);//GLM_FLAT  GLM_SMOOTH
+		// glmDraw(m, GLM_SMOOTH);//GLM_FLAT  GLM_SMOOTH
 		SetMaterial(.7, .7, .7, 1.0,
 					.64, .6, .6, 1.0,
 					.52, .5, .52, 1.0,
@@ -919,9 +921,9 @@ void SetupRC()
 	sun.SetOrigin(fLightPos[0], fLightPos[1], fLightPos[2]);
 	flashlight.SetOrigin(0, 10, 0);
 
-	m = glmReadOBJ("../model/T_Rex_Base_Mesh.OBJ");
-	glmUnitize(m);
-	glmFacetNormals(m);
-	glmVertexNormals(m, 90);
+	// m = glmReadOBJ("./model/T_Rex_Base_Mesh.OBJ");
+	// glmUnitize(m);
+	// glmFacetNormals(m);
+	// glmVertexNormals(m, 90);
 
 }
