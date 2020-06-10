@@ -9,15 +9,13 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/)
 include_directories(${PROJECT_SOURCE_DIR}/lib)
 
 add_executable( Telescope 
     "${PROJECT_SOURCE_DIR}/src/TypeDef.h" 
     "${PROJECT_SOURCE_DIR}/src/Drawer.h" 
     "${PROJECT_SOURCE_DIR}/src/Main.cpp" 
-    "${PROJECT_SOURCE_DIR}/lib/glFrame.h" 
-    "${PROJECT_SOURCE_DIR}/lib/math3d.cpp" 
-    "${PROJECT_SOURCE_DIR}/lib/math3d.h" 
 )
 
-target_link_libraries(Telescope ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} gltools GLEW)
+target_link_libraries(Telescope ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} GLEW)

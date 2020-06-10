@@ -1,0 +1,3 @@
+[submodule "GLTools"]
+	path = GLTools
+	url = https://github.com/SSARCandy/GLTools.git
