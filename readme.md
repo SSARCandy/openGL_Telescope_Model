@@ -11,13 +11,12 @@ A complete telescope (with equatorial) simulator written in OpenGL.
 **Requirement**
 
 - [cmake](https://cmake.org/) - build tools
-- [GLTools](https://github.com/HazimGazov/GLTools) - 3rd helper ibrary
 
 **Linux**
 
 ```bash
-# pre-request: please finish GLTools setup
-$ sudo apt-get install libgl1-mesa-dev freeglut3-dev libglut-dev
+$ sudo apt-get install build-essential g++ cmake libx11-dev freeglut3-dev libglu1-mesa-dev libxcb1-dev libxext-dev libxxf86vm-dev libxi-dev libxmu-dev glew-utils libglew1.5-dev libgl1-mesa-dev freeglut3-dev libglut-dev
+$ git submodule update --init --recursive
 $ ./build.sh
 $ ./build/Telescope
 ```
