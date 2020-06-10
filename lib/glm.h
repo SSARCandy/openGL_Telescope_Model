@@ -1,3 +1,5 @@
+#pragma once
+
 /*
       glm.h
       Nate Robins, 1997, 2000
