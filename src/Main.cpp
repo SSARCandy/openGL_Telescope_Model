@@ -541,8 +541,8 @@ void showInfo(){
 	Dec_m = (int)((realDec - Dec_d) * 60);
 	Dec_s = (int)((realDec - Dec_d) * 3600) - Dec_m * 60;
 
-//	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
-	sprintf(mss, "Dec: %.0f* %.2f' %.2f  %.2f", fViewingLightPos[0], fViewingLightPos[1], fViewingLightPos[2], fViewingLightPos[3]);
+	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
+	// sprintf(mss, "Dec: %.0f* %.2f' %.2f  %.2f", fViewingLightPos[0], fViewingLightPos[1], fViewingLightPos[2], fViewingLightPos[3]);
 	printText(mss, 0.0, 0.7, 0.0);
 
 
