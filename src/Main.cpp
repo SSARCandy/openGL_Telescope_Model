@@ -1,23 +1,12 @@
-// SphereWorld.cpp
-// OpenGL SuperBible
-// Demonstrates an immersive 3D environment using actors
-// and a camera.
-// Program by Richard S. Wright Jr.
-
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <string>
-//#include <GL\glut.h>
 #include <GLTools.h>
 #include "math3d.h"
 #include "glFrame.h"
 #include "glm.h"
 
-// GLMmodel *m;
-
-int			WinNumber			= NULL;                    //用來放置視窗代碼
+int			WinNumber			= 0;                    //用來放置視窗代碼
 const float DEG2RAD				= 3.14159 / 180.0;         //角度轉弧度
 const float windowWidth			= 800;				       //視窗預設寬度
 const float windowHeight		= 600;				       //視窗預設高度
@@ -65,19 +54,19 @@ void SetMaterial(GLfloat, GLfloat, GLfloat, GLfloat,  // Ka RGBA
 				 GLfloat);						      // Se
 void SetupRC();
 void WindowSize(int, int);							  //負責視窗及繪圖內容的比例
-void myKeys(unsigned char, int, int);				  //獲取鍵盤輸入
-void myKeysUp(unsigned char, int, int);				  //獲取鍵盤彈起
+void MyKeys(unsigned char, int, int);				  //獲取鍵盤輸入
+void MyKeysUp(unsigned char, int, int);				  //獲取鍵盤彈起
 void SpecialKeys(int key, int x, int y);			  //獲取特殊鍵輸入
 void Mouse(int, int, int, int);						  //獲取滑鼠按下和放開時的訊息
 void MotionMouse(int, int);							  //獲取滑鼠按下期間的訊息
 void Display(void);									  //畫面刷新
-void showInfo();									  //顯示訊息於螢幕上(赤經、赤緯等)
-void printText(char*, float, float, float);           //印字
-void updateRA_Dec();								  //更新赤經赤緯
+void ShowInfo();									  //顯示訊息於螢幕上(赤經、赤緯等)
+void PrintText(char*, float, float, float);           //印字
+void UpdateCoordinate();								  //更新赤經赤緯
 void DrawGround(void);								  //畫地板格線
 void DrawTelescope(bool);					          //畫望遠鏡 or 望遠鏡影子
 void DrawSun(void);									  //畫太陽	
-void drawCube(bool, float, float, float, float, float, float, float);//客製化 Wire/Solid Cubes
+void DrawCube(bool, float, float, float, float, float, float, float);//客製化 Wire/Solid Cubes
 
 int main(int argc, char *argv[])
 {
@@ -112,8 +101,8 @@ int main(int argc, char *argv[])
 	WinNumber = glutCreateWindow("Telescope Model -- SSARCandy");   
 
 	glutReshapeFunc(WindowSize);
-	glutKeyboardFunc(myKeys);
-	glutKeyboardUpFunc(myKeysUp);
+	glutKeyboardFunc(MyKeys);
+	glutKeyboardUpFunc(MyKeysUp);
 	glutSpecialFunc(SpecialKeys);
 	glutMouseFunc(Mouse);
 	glutMotionFunc(MotionMouse);
@@ -156,19 +145,17 @@ void DrawGround(void)
 			}
 		}
 	}
-//	else{
-		glColor4ub(200, 200, 200, 255);
+	glColor4ub(200, 200, 200, 255);
 
-		for (iLine = -fExtent; iLine <= fExtent; iLine += fStep){
-			glBegin(GL_LINES);
-				glVertex3f(iLine, y+0.001, fExtent);    // Draw Z lines
-				glVertex3f(iLine, y+0.001, -fExtent);
+	for (iLine = -fExtent; iLine <= fExtent; iLine += fStep){
+		glBegin(GL_LINES);
+			glVertex3f(iLine, y+0.001, fExtent);    // Draw Z lines
+			glVertex3f(iLine, y+0.001, -fExtent);
 
-				glVertex3f(fExtent, y+0.001, iLine);
-				glVertex3f(-fExtent, y+0.001, iLine);
-			glEnd();
-		}
-//	}
+			glVertex3f(fExtent, y+0.001, iLine);
+			glVertex3f(-fExtent, y+0.001, iLine);
+		glEnd();
+	}
 }
 
 void DrawTelescope(bool p){
@@ -178,7 +165,7 @@ void DrawTelescope(bool p){
 
 	/**------------------ Draw 赤道儀基座 START----------------**/
 	glPushMatrix();    // save global matrix
-		drawCube(noLightMode, 1.0, 2.3, 3.2, 2.0, 80, 0, 0);
+		DrawCube(noLightMode, 1.0, 2.3, 3.2, 2.0, 80, 0, 0);
 	glPopMatrix();     // restore global matrix
 
 	glPushMatrix();    // save global matrix
@@ -233,7 +220,7 @@ void DrawTelescope(bool p){
 		glTranslated(0, 0.5, 0);  //調整旋轉中心點
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
-			drawCube(noLightMode, 1.0, 2.4, 4, 2.4, 80, 0, 0);
+			DrawCube(noLightMode, 1.0, 2.4, 4, 2.4, 80, 0, 0);
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 
 		glPushMatrix();    // save 赤道儀赤緯軸 matrix
@@ -284,7 +271,7 @@ void DrawTelescope(bool p){
 
 			glPushMatrix();
 				glTranslated(0, 2.3, 3.3);
-				drawCube(noLightMode, 1.0, 1, 0.7, 5, 80, 60, 60);
+				DrawCube(noLightMode, 1.0, 1, 0.7, 5, 80, 60, 60);
 				if (!p) glColor4ub(20, 20, 20, 255);
 			glPopMatrix();
 
@@ -323,7 +310,7 @@ void DrawTelescope(bool p){
 			gluDisk(gluNewQuadric(), 0, 0.3, Slice, 8);                // 目鏡背面
 
 			glTranslated(0, 0.6, 1.5);
-			drawCube(noLightMode, 1.0, 1, 1, 1, 10, 10, 10);
+			DrawCube(noLightMode, 1.0, 1, 1, 1, 10, 10, 10);
 		glPopMatrix();     // restore 赤道儀赤緯軸 matrix
 	/**------------------ Draw 主鏡 END------------------**/
 
@@ -333,7 +320,7 @@ void DrawTelescope(bool p){
 		glTranslated(0, -1.6, -1.0);
 		glRotated(angle, 1, 0, 0);
 		glTranslated(0, -5.9, 0);
-		drawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
+		DrawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
 	glPopMatrix();   // restore global matrix
 
 	glPushMatrix();  // save global matrix
@@ -341,7 +328,7 @@ void DrawTelescope(bool p){
 		glTranslated(0, -1.6, -1.0);
 		glRotated(angle, 1, 0, 0);
 		glTranslated(0, -5.9, 0);
-		drawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
+		DrawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
 	glPopMatrix();   // restore global matrix
 
 	glPushMatrix();  // save global matrix
@@ -349,7 +336,7 @@ void DrawTelescope(bool p){
 		glTranslated(0, -1.6, -1.0);
 		glRotated(angle, 1, 0, 0);
 		glTranslated(0, -5.9, 0);
-		drawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
+		DrawCube(noLightMode, 1.0, 1, 11.5, 0.2, 70, 70, 70);
 	glPopMatrix();   // restore global matrix
 	glPushMatrix();  // save global matrix
 
@@ -386,20 +373,13 @@ void DrawSun(void){
 void DrawFlashlight(void){
 	///////////////////
 	// 畫光源(手電筒)
-	if (!noLightMode){
-		glPushMatrix();
-			//fViewingLightPos[0] = flashlight.GetOriginX();
-			//fViewingLightPos[1] = flashlight.GetOriginY();
-			//fViewingLightPos[2] = flashlight.GetOriginZ();
-			//fViewingLightPos[3] = 1.0f;
-
-			flashlight.ApplyActorTransform();
-			glColor4ub(200, 200, 0, 255);
-			glutSolidSphere(.50, 15, 15);
-			glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);
-			//gltDrawUnitAxes();
-		glPopMatrix();
-	}
+	if (noLightMode) return;
+	glPushMatrix();
+		flashlight.ApplyActorTransform();
+		glColor4ub(200, 200, 0, 255);
+		glutSolidSphere(.50, 15, 15);
+		glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);
+	glPopMatrix();
 }
 
 void CameraView(bool noLightMode){
@@ -425,11 +405,10 @@ void CameraView(bool noLightMode){
 	}
 }
 
-void Display(void)
-{
+void Display(void) {
 	noLightMode ? glClearColor(0.5, 0.5, 0.5, 1.0) : glClearColor(0.8, 0.8, 0.8, 1.0);//根據是否開光影來塗背景顏色
 
-	updateRA_Dec(); //控制 RA, Dec 的改變
+	UpdateCoordinate(); //控制 RA, Dec 的改變
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	noLightMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Shading = true/false
@@ -502,13 +481,13 @@ void Display(void)
 		DrawFlashlight();
 
 	glPushMatrix();// save global matrix
-		showInfo();// 在螢幕上寫字
+		ShowInfo();// 在螢幕上寫字
 	glPopMatrix(); // restore global matrix
 
 	glutSwapBuffers();
 }
 
-void showInfo(){
+void ShowInfo(){
 	glDisable(GL_LIGHTING);
 	glRotatef(-(float)rot_x - (float)record_x, 0.0, 1.0, 0.0);   //以y軸當旋轉軸，改變座標系對應至畫面
 	glRotatef(-(float)rot_y - (float)record_y, 1.0, 0.0, 0.0);   //以x軸當旋轉軸，改變座標系對應至畫面
@@ -516,7 +495,7 @@ void showInfo(){
 
 	glTranslated(-15.58, 10.9, 0);
 	sprintf(mss, "Motor Speed: %.2f", moveSpeed);
-	printText(mss, 0.0, 0.7, 0.0);
+	PrintText(mss, 0.0, 0.7, 0.0);
 
 	glTranslated(0.0, -1, 0);
 	// 修正顯示的赤經成實際的赤經格式
@@ -528,7 +507,7 @@ void showInfo(){
 	RA_s = (rRA - RA_h * 15 - RA_m / 4) * 15;
 
 	sprintf(mss, "RA  : %.2dh %.2dm %.2ds", RA_h, RA_m, RA_s);
-	printText(mss, 0.0, 0.7, 0.0);
+	PrintText(mss, 0.0, 0.7, 0.0);
 
 	glTranslated(0.0, -1, 0);
 	// 修正顯示的赤緯成實際的赤緯
@@ -543,21 +522,21 @@ void showInfo(){
 
 	sprintf(mss, "Dec: %.0f* %.2d' %.2d''", realDec, abs(Dec_m), abs(Dec_s));
 	// sprintf(mss, "Dec: %.0f* %.2f' %.2f  %.2f", fViewingLightPos[0], fViewingLightPos[1], fViewingLightPos[2], fViewingLightPos[3]);
-	printText(mss, 0.0, 0.7, 0.0);
+	PrintText(mss, 0.0, 0.7, 0.0);
 
 
 	if(!noLightMode) glEnable(GL_LIGHTING);
 
 }
 
-void printText(char* str, float r, float g, float b){
+void PrintText(char* str, float r, float g, float b){
 	glColor3f(r, g, b);     //set font color
 	glRasterPos2i(0, 0);    //set font start position
 	for (unsigned i = 0; i<strlen(str); i++)		
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
 }
 
-void updateRA_Dec(){
+void UpdateCoordinate(){
 	if (mykey[0]) Dec += moveSpeed;
 	if (mykey[1]) Dec -= moveSpeed;
 	if (mykey[2]) RA -= moveSpeed;
@@ -571,7 +550,7 @@ void updateRA_Dec(){
 }
 
 // Draw customized Wire/Solid Cubes
-void drawCube(bool noLightMode, float size, float sX, float sY, float sZ, float r, float g, float b){
+void DrawCube(bool noLightMode, float size, float sX, float sY, float sZ, float r, float g, float b){
 	if (!noLightMode) {
 		glColor4ub(r + 10, g + 10, b + 10, 255);
 		glScaled(sX, sY, sZ);
@@ -631,7 +610,7 @@ void GOTO(int i){
 	else
 		Dec_Done = true;
 
-	updateRA_Dec();
+	UpdateCoordinate();
 
 	if (!RA_Done || !Dec_Done){
 		glutTimerFunc(33, GOTO, 0);
@@ -651,7 +630,7 @@ void goCrazy(int i){
 	}
 }
 
-void myKeys(unsigned char key, int x, int y)
+void MyKeys(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
@@ -747,7 +726,7 @@ void myKeys(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-void myKeysUp(unsigned char key, int x, int y){
+void MyKeysUp(unsigned char key, int x, int y){
 	switch (key)
 	{
 	case 'w':
@@ -920,10 +899,4 @@ void SetupRC()
 
 	sun.SetOrigin(fLightPos[0], fLightPos[1], fLightPos[2]);
 	flashlight.SetOrigin(0, 10, 0);
-
-	// m = glmReadOBJ("./model/T_Rex_Base_Mesh.OBJ");
-	// glmUnitize(m);
-	// glmFacetNormals(m);
-	// glmVertexNormals(m, 90);
-
 }
