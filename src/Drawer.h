@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLTools.h>
+#include "GLTools/GLTools.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,9 +8,9 @@
 #include <array>
 
 #include "TypeDef.h"
-#include "glFrame.h"
+#include "GLTools/math3d.h"
+#include "GLTools/GLFrame.h"
 #include "glm.h"
-#include "math3d.h"
 
 namespace Draw {
 

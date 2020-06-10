@@ -1,12 +1,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <GLTools.h>
-#include "Drawer.h"
-#include "math3d.h"
-#include "glFrame.h"
-#include "glm.h"
+#include "GLTools/GLTools.h"
+#include "GLTools/math3d.h"
+#include "GLTools/GLFrame.h"
 #include "TypeDef.h"
+#include "Drawer.h"
+#include "glm.h"
 
 int			WinNumber			= 0;                    //用來放置視窗代碼
   
