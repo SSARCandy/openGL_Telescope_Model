@@ -76,6 +76,18 @@ void Sun(bool noLightMode, GLFrame& sun) {
   glPopMatrix();
 }
 
+///////////////////
+// 畫光源(手電筒)
+void Flashlight(bool noLightMode, GLFrame &flashlight, const float fViewingLightPos[]){
+	if (noLightMode) return;
+	glPushMatrix();
+		flashlight.ApplyActorTransform();
+		glColor4ub(200, 200, 0, 255);
+		glutSolidSphere(.50, 15, 15);
+		glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);
+	glPopMatrix();
+}
+
 // 客製化 Wire/Solid Cubes
 // Draw customized Wire/Solid Cubes
 void Cube(bool noLightMode, bool polygonoffset, CubeInfo info) {

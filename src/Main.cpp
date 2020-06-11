@@ -115,18 +115,6 @@ int main(int argc, char *argv[])
 ///////////////////////////////////////////////////////////
 
 
-void DrawFlashlight(void){
-	///////////////////
-	// 畫光源(手電筒)
-	if (noLightMode) return;
-	glPushMatrix();
-		flashlight.ApplyActorTransform();
-		glColor4ub(200, 200, 0, 255);
-		glutSolidSphere(.50, 15, 15);
-		glLightfv(GL_LIGHT1, GL_POSITION, fViewingLightPos);
-	glPopMatrix();
-}
-
 void CameraView(bool noLightMode){
 	if (!noLightMode){
 		accumlateX = (float)rot_y + (float)record_y;
@@ -223,7 +211,7 @@ void Display(void) {
 					.05, .05, .05, 1.0,
 					45.0);
 	glPopMatrix(); // restore global matrix
-		DrawFlashlight();
+	Draw::Flashlight(noLightMode, flashlight, fViewingLightPos);
 
 	glPushMatrix();// save global matrix
 		ShowInfo();// 在螢幕上寫字
@@ -294,7 +282,6 @@ void UpdateCoordinate(){
 	if (Dec > 360) Dec -= 360;
 }
 
-
 // GOTO specify target
 void GOTO(int i){
 	bool RA_Done = false;
@@ -322,14 +309,14 @@ void GOTO(int i){
 	}
 }
 
-void goCrazy(int i){
+void GoCrazy(int i){
 	RA += 3;
 	Dec += 3;
 
 	((i / 35) % 2) == 0 ? angle-- : angle++;
 	
 	if (i < 700){
-		glutTimerFunc(10, goCrazy, ++i);
+		glutTimerFunc(10, GoCrazy, ++i);
 		glutPostRedisplay();
 	}
 }
@@ -400,7 +387,7 @@ void MyKeys(unsigned char key, int x, int y)
 			break;
 		case 'c':
 		case 'C':
-			goCrazy(35-angle);
+			GoCrazy(35-angle);
 			break;
 		case 'l':
 		case 'L':
